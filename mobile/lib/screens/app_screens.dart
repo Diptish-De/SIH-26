@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../models/screening_models.dart';
 import '../services/tts_service.dart';
-import '../widgets/apk_download_dialog.dart';
 
 // ─── Smartphone Shell Wrapper (Figma Simulation on Desktop/Web) ───────────────
 

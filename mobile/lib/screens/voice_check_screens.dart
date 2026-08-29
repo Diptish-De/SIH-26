@@ -7,196 +7,183 @@ import '../models/screening_models.dart';
 import '../services/tts_service.dart';
 import '../services/audio_service.dart';
 
-// ─── 1. Voice Check Intro ─────────────────────────────────────────────────────
+// ─── Step Indicator Dots (Figma: [ — ] [ • ] [ • ]) ───────────────────────────
 
-class VoiceIntroScreen extends StatelessWidget {
-  final String language;
-  final VoidCallback onStart;
+class StepProgressHeader extends StatelessWidget {
+  final int currentStep; // 1, 2, 3
   final VoidCallback onBack;
+  final VoidCallback onClose;
 
-  const VoiceIntroScreen({
+  const StepProgressHeader({
     super.key,
-    required this.language,
-    required this.onStart,
+    required this.currentStep,
     required this.onBack,
+    required this.onClose,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.text),
-          onPressed: onBack,
-        ),
-        title: Text('Voice Check', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.text)),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            const Spacer(),
-            Text(
-              'Let\'s begin',
-              style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.text),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'This is a short voice check. It takes about 3–5 minutes.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.notoSans(fontSize: 14, color: AppColors.muted),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                _buildStepCard('01', 'Listen'),
-                const SizedBox(width: 12),
-                _buildStepCard('02', 'Speak'),
-                const SizedBox(width: 12),
-                _buildStepCard('03', 'Finish'),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => TtsService().speak('Let\'s begin. This is a short voice check.', language),
-              icon: const Icon(Icons.volume_up, size: 18, color: AppColors.primaryDark),
-              label: const Text('Listen (सुनें)', style: TextStyle(color: AppColors.primaryDark)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryLight,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onStart,
-                child: const Text('Begin Voice Check'),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: onStart,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: AppColors.border),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text('Someone is helping me', style: TextStyle(color: AppColors.textSub)),
-              ),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColors.text, size: 20),
+            onPressed: onBack,
+          ),
+          Row(
+            children: [
+              _buildDot(1 == currentStep),
+              const SizedBox(width: 6),
+              _buildDot(2 == currentStep),
+              const SizedBox(width: 6),
+              _buildDot(3 == currentStep),
+            ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: AppColors.text, size: 20),
+            onPressed: onClose,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStepCard(String number, String label) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          children: [
-            Text(number, style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primary)),
-            const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.text)),
-          ],
-        ),
+  Widget _buildDot(bool isActive) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      width: isActive ? 22 : 7,
+      height: 7,
+      decoration: BoxDecoration(
+        color: isActive ? AppColors.primary : AppColors.border,
+        borderRadius: BorderRadius.circular(4),
       ),
     );
   }
 }
 
-// ─── 2. Instruction / Prompt Screen ───────────────────────────────────────────
+// ─── Task 1 of 3: Picture Description Screen ──────────────────────────────────
 
-class InstructionScreen extends StatelessWidget {
-  final String prompt;
+class PictureDescriptionScreen extends StatelessWidget {
   final String language;
   final VoidCallback onStartSpeaking;
   final VoidCallback onBack;
+  final VoidCallback onClose;
 
-  const InstructionScreen({
+  const PictureDescriptionScreen({
     super.key,
-    required this.prompt,
     required this.language,
     required this.onStartSpeaking,
     required this.onBack,
+    required this.onClose,
   });
 
   @override
   Widget build(BuildContext context) {
+    const prompt = 'Tell us what you see in the picture.';
+
     return Scaffold(
       backgroundColor: AppColors.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: AppColors.text), onPressed: onBack),
-        title: Text('Task 1 of 3', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.muted)),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
-            Container(
+            StepProgressHeader(currentStep: 1, onBack: onBack, onClose: onClose),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Column(
+                  children: [
+                    Text(
+                      'What do you see?',
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      prompt,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.muted),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Listen Pill
+                    InkWell(
+                      onTap: () => TtsService().speak(prompt, language),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.volume_up, size: 16, color: AppColors.primaryDark),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Listen',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Illustrated Picture Card (House, Sun, Tree, Bicycle)
+                    Container(
+                      width: double.infinity,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0F2FE), // Sky blue
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppColors.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: CustomPaint(
+                          painter: CountrysideScenePainter(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Start Speaking Button
+            Padding(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.volume_up, size: 40, color: AppColors.primaryDark),
-            ),
-            const SizedBox(height: 24),
-            Text('Listen to the question', style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.muted)),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4)),
-                ],
-              ),
-              child: Text(
-                prompt,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.notoSans(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.text),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () => TtsService().speak(prompt, language),
-              icon: const Icon(Icons.replay, size: 18, color: AppColors.primaryDark),
-              label: const Text('Play Again', style: TextStyle(color: AppColors.primaryDark)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryLight,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onStartSpeaking,
-                child: const Text('Start Speaking'),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: onStartSpeaking,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Start Speaking',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ),
           ],
@@ -206,15 +193,389 @@ class InstructionScreen extends StatelessWidget {
   }
 }
 
-// ─── 3. Recording Screen ──────────────────────────────────────────────────────
+// Custom Painter for Countryside Illustration matching Figma
+class CountrysideScenePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    // 1. Sun
+    final sunPaint = Paint()..color = const Color(0xFFFDE047);
+    final sunRayPaint = Paint()
+      ..color = const Color(0xFFFACC15)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final sunCenter = Offset(w * 0.82, h * 0.25);
+    canvas.drawCircle(sunCenter, 22, sunPaint);
+    for (int i = 0; i < 8; i++) {
+      final angle = i * (pi / 4);
+      final p1 = Offset(sunCenter.dx + cos(angle) * 26, sunCenter.dy + sin(angle) * 26);
+      final p2 = Offset(sunCenter.dx + cos(angle) * 34, sunCenter.dy + sin(angle) * 34);
+      canvas.drawLine(p1, p2, sunRayPaint);
+    }
+
+    // 2. White Cloud
+    final cloudPaint = Paint()..color = Colors.white.withValues(alpha: 0.85);
+    canvas.drawOval(Rect.fromLTWH(w * 0.15, h * 0.12, 80, 32), cloudPaint);
+    canvas.drawCircle(Offset(w * 0.28, h * 0.2), 20, cloudPaint);
+
+    // 3. Birds in distance
+    final birdPaint = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawArc(Rect.fromLTWH(w * 0.45, h * 0.18, 12, 8), pi, pi, false, birdPaint);
+    canvas.drawArc(Rect.fromLTWH(w * 0.48, h * 0.18, 12, 8), pi, pi, false, birdPaint);
+
+    // 4. Green Ground
+    final groundPaint = Paint()..color = const Color(0xFF86EFAC); // Grass green
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(0, h * 0.62, w, h * 0.38), const Radius.circular(0)),
+      groundPaint,
+    );
+
+    // 5. House (Orange Roof & Body)
+    final houseWall = Paint()..color = const Color(0xFFFED7AA);
+    canvas.drawRect(Rect.fromLTWH(w * 0.12, h * 0.50, 70, 48), houseWall);
+
+    final roofPath = Path()
+      ..moveTo(w * 0.12 - 6, h * 0.50)
+      ..lineTo(w * 0.12 + 35, h * 0.36)
+      ..lineTo(w * 0.12 + 76, h * 0.50)
+      ..close();
+    final roofPaint = Paint()..color = const Color(0xFFFB923C);
+    canvas.drawPath(roofPath, roofPaint);
+
+    // House Window & Door
+    final windowPaint = Paint()..color = const Color(0xFFBFDBFE);
+    canvas.drawRect(Rect.fromLTWH(w * 0.15, h * 0.55, 14, 14), windowPaint);
+
+    final doorPaint = Paint()..color = const Color(0xFFC084FC);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(w * 0.23, h * 0.60, 16, 26), const Radius.circular(4)),
+      doorPaint,
+    );
+
+    // 6. Tree
+    final trunkPaint = Paint()..color = const Color(0xFF94A3B8)..strokeWidth = 6;
+    canvas.drawLine(Offset(w * 0.52, h * 0.54), Offset(w * 0.52, h * 0.72), trunkPaint);
+
+    final foliagePaint = Paint()..color = const Color(0xFF4ADE80);
+    canvas.drawCircle(Offset(w * 0.52, h * 0.48), 24, foliagePaint);
+
+    // 7. Bicycle Wheels
+    final bikePaint = Paint()
+      ..color = const Color(0xFF0F172A)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5;
+    canvas.drawCircle(Offset(w * 0.72, h * 0.72), 12, bikePaint);
+    canvas.drawCircle(Offset(w * 0.84, h * 0.72), 12, bikePaint);
+    canvas.drawLine(Offset(w * 0.72, h * 0.72), Offset(w * 0.78, h * 0.65), bikePaint);
+    canvas.drawLine(Offset(w * 0.84, h * 0.72), Offset(w * 0.78, h * 0.65), bikePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ─── Task 2 of 3: Memory Recall Screen ────────────────────────────────────────
+
+class MemoryRecallScreen extends StatelessWidget {
+  final String language;
+  final VoidCallback onContinue;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
+
+  const MemoryRecallScreen({
+    super.key,
+    required this.language,
+    required this.onContinue,
+    required this.onBack,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const wordList = 'Cow · River · Book · House · Flower';
+    const subText = 'We will read some words. Try to remember them.';
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            StepProgressHeader(currentStep: 2, onBack: onBack, onClose: onClose),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    // Large Cyan Audio Icon Box
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.volume_up_rounded,
+                          size: 38,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Text(
+                      'Listen carefully',
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      subText,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.muted),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Words Display Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: AppColors.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        wordList,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    ElevatedButton.icon(
+                      onPressed: () => TtsService().speak(
+                        'Cow, River, Book, House, Flower. Try to remember these words.',
+                        language,
+                      ),
+                      icon: const Icon(Icons.replay, size: 16, color: AppColors.primaryDark),
+                      label: const Text('Listen Again', style: TextStyle(color: AppColors.primaryDark, fontSize: 13)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryLight,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Continue Button
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: onContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'I heard the words — continue',
+                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Task 3 of 3: Conversational Prompt Screen ────────────────────────────────
+
+class ConversationalTaskScreen extends StatelessWidget {
+  final String language;
+  final VoidCallback onStartSpeaking;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
+
+  const ConversationalTaskScreen({
+    super.key,
+    required this.language,
+    required this.onStartSpeaking,
+    required this.onBack,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const prompt = 'Tell us about something you enjoy doing.';
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            StepProgressHeader(currentStep: 3, onBack: onBack, onClose: onClose),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    // Chat message icon box
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.chat_bubble_outline_rounded,
+                          size: 36,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Text(
+                      'One more',
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      prompt,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.notoSans(fontSize: 14, color: AppColors.textSub),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Quote Card: "There are no right or wrong answers."
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Text(
+                        '“There are no right or wrong answers.”',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.notoSans(
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Listen button
+                    InkWell(
+                      onTap: () => TtsService().speak(prompt, language),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.volume_up, size: 16, color: AppColors.primaryDark),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Listen',
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Start Speaking Button
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: onStartSpeaking,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Start Speaking',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Recording Screen with Live Oscillating Waveforms ─────────────────────────
 
 class RecordingScreen extends StatefulWidget {
   final AudioRecorderService recorder;
+  final int stepIndex; // 1, 2, 3
   final VoidCallback onFinish;
 
   const RecordingScreen({
     super.key,
     required this.recorder,
+    required this.stepIndex,
     required this.onFinish,
   });
 
@@ -263,7 +624,10 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: Text('Recording', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.text)),
+        title: Text(
+          'Task ${widget.stepIndex} of 3 Recording',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text),
+        ),
         centerTitle: true,
       ),
       body: Padding(
@@ -273,7 +637,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
           children: [
             const Spacer(),
 
-            // Animated Mic Button
+            // Pulsating Mic Button
             GestureDetector(
               onTap: () {
                 if (widget.recorder.isPaused) {
@@ -367,6 +731,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
 
             SizedBox(
               width: double.infinity,
+              height: 50,
               child: ElevatedButton(
                 onPressed: () async {
                   await widget.recorder.stop();
@@ -382,7 +747,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
   }
 }
 
-// ─── 4. Processing Animation ──────────────────────────────────────────────────
+// ─── Processing Animation Screen ──────────────────────────────────────────────
 
 class ProcessingScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -461,7 +826,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   }
 }
 
-// ─── 5. Screening Result ──────────────────────────────────────────────────────
+// ─── Screening Result Screen ──────────────────────────────────────────────────
 
 class ScreeningResultScreen extends StatelessWidget {
   final ScreeningRisk risk;

@@ -38,7 +38,7 @@ class MainNavigationController extends StatefulWidget {
 
 class _MainNavigationControllerState extends State<MainNavigationController> {
   int _activeTabIndex = 0;
-  String _currentScreen = 'splash'; // Initial animated splash screen
+  String _currentScreen = 'splash'; // 'splash', 'tabs', 'task1', 'rec1', 'task2', 'rec2', 'task3', 'rec3', 'processing', 'result', 'doctorDash', 'doctorPatient'
   String _selectedLanguage = 'en';
   final String _userName = 'Friend';
   String _selectedPatient = 'Rama Devi';
@@ -81,7 +81,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _navigateTo('voiceIntro');
+              _navigateTo('task1');
             },
             child: const Text('Start Now'),
           ),
@@ -97,35 +97,61 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           onFinish: () => _navigateTo('tabs'),
         );
 
-      case 'voiceIntro':
-        return VoiceIntroScreen(
+      // ─── Task 1 of 3: Picture Description ─────────────────────────
+      case 'task1':
+        return PictureDescriptionScreen(
           language: _selectedLanguage,
-          onStart: () => _navigateTo('instruction'),
+          onStartSpeaking: () => _navigateTo('rec1'),
           onBack: () => _navigateTo('tabs'),
+          onClose: () => _navigateTo('tabs'),
         );
 
-      case 'instruction':
-        return InstructionScreen(
-          prompt: _selectedLanguage == 'hi'
-              ? 'हमें अपने दिन के बारे में बताइए।'
-              : 'Tell us about something you enjoy doing.',
-          language: _selectedLanguage,
-          onStartSpeaking: () => _navigateTo('recording'),
-          onBack: () => _navigateTo('voiceIntro'),
-        );
-
-      case 'recording':
+      case 'rec1':
         return RecordingScreen(
           recorder: _audioRecorder,
+          stepIndex: 1,
+          onFinish: () => _navigateTo('task2'),
+        );
+
+      // ─── Task 2 of 3: Memory Recall ──────────────────────────────
+      case 'task2':
+        return MemoryRecallScreen(
+          language: _selectedLanguage,
+          onContinue: () => _navigateTo('rec2'),
+          onBack: () => _navigateTo('task1'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'rec2':
+        return RecordingScreen(
+          recorder: _audioRecorder,
+          stepIndex: 2,
+          onFinish: () => _navigateTo('task3'),
+        );
+
+      // ─── Task 3 of 3: Conversational Prompt ───────────────────────
+      case 'task3':
+        return ConversationalTaskScreen(
+          language: _selectedLanguage,
+          onStartSpeaking: () => _navigateTo('rec3'),
+          onBack: () => _navigateTo('task2'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'rec3':
+        return RecordingScreen(
+          recorder: _audioRecorder,
+          stepIndex: 3,
           onFinish: () => _navigateTo('processing'),
         );
 
+      // ─── Dual Engine ML Analysis ──────────────────────────────────
       case 'processing':
         return ProcessingScreen(
           onComplete: () async {
             final session = ScreeningSession(
               id: 'sc_${DateTime.now().millisecondsSinceEpoch}',
-              patientName: _userName,
+              patientName: _userName == 'Friend' ? 'Rama Devi' : _userName,
               patientAge: 72,
               language: _selectedLanguage,
               assistedMode: false,
@@ -145,7 +171,8 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
                 classicalRiskScore: 0.84,
                 quantumRiskScore: 0.89,
                 shapFactors: [
-                  ShapFactor(feature: 'Extended pause duration', weight: 38.0),
+                  ShapFactor(feature: 'Extended pause duration (>1.2s)', weight: 38.0),
+                  ShapFactor(feature: 'Vocal pitch jitter (3.2%)', weight: 30.0),
                 ],
               ),
             );
@@ -154,6 +181,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           },
         );
 
+      // ─── Results Screen ───────────────────────────────────────────
       case 'result':
         return ScreeningResultScreen(
           risk: ScreeningRisk.elevated,
@@ -164,6 +192,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           onDetails: () => _navigateTo('doctorPatient'),
         );
 
+      // ─── Doctor Dashboard & Progress Trends ───────────────────────
       case 'doctorDash':
         return DoctorDashboardScreen(
           onBack: () => _navigateTo('tabs'),
@@ -188,7 +217,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           language: _selectedLanguage,
           hasPreviousCheck: _hasPreviousCheck,
           hasError: _hasError,
-          onStartCheck: () => _navigateTo('voiceIntro'),
+          onStartCheck: () => _navigateTo('task1'),
           onDoctorPatient: () => _navigateTo('doctorPatient'),
           onLanguageChanged: (lang) => setState(() => _selectedLanguage = lang),
         );
