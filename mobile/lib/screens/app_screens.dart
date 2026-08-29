@@ -222,6 +222,7 @@ class MainTabScaffold extends StatelessWidget {
           userName: userName,
           currentLang: language,
           onLanguageChanged: onLanguageChanged,
+          onHelp: () => onTabChange(2),
         );
         break;
       case 0:
@@ -776,95 +777,489 @@ class HelpTab extends StatelessWidget {
   }
 }
 
-// ─── 4. Profile Tab ───────────────────────────────────────────────────────────
+// ─── 4. Profile Tab (Exact Figma Design) ──────────────────────────────────────
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   final String userName;
   final String currentLang;
   final Function(String lang) onLanguageChanged;
+  final VoidCallback onHelp;
 
   const ProfileTab({
     super.key,
     required this.userName,
     required this.currentLang,
     required this.onLanguageChanged,
+    required this.onHelp,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text('Profile & Settings', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.text)),
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  bool _audioInstructions = true;
+  bool _dataSaver = false;
+
+  String get _currentLanguageName {
+    final match = kAppLanguages.firstWhere(
+      (l) => l.code == widget.currentLang,
+      orElse: () => const LanguageItem(code: 'en', native: 'English', name: 'English'),
+    );
+    return match.name;
+  }
+
+  void _showLanguageSelector() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
-                  child: const Icon(Icons.person, color: AppColors.primaryDark, size: 30),
-                ),
-                const SizedBox(width: 14),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('$userName, 72', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.text)),
-                    Text('Patient ID: #SS-8921', style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.muted)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text('App Language (भाषा)', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.muted)),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: kAppLanguages.map((lang) {
-              final isSelected = lang.code == currentLang;
-              return ChoiceChip(
-                label: Text('${lang.native} (${lang.name})'),
-                selected: isSelected,
-                onSelected: (val) {
-                  if (val) onLanguageChanged(lang.code);
-                },
-                selectedColor: AppColors.primary,
-                labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : AppColors.textSub,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => showDialog(context: context, builder: (_) => const ApkDownloadDialog()),
-              icon: const Icon(Icons.android, color: AppColors.primary),
-              label: const Text('Download Android APK (QR)'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Choose Language (भाषा)',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Icons.close, color: AppColors.muted),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: kAppLanguages.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.border),
+                  itemBuilder: (context, index) {
+                    final lang = kAppLanguages[index];
+                    final isSelected = lang.code == widget.currentLang;
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      title: Text(
+                        lang.native,
+                        style: GoogleFonts.notoSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? AppColors.primary : AppColors.text,
+                        ),
+                      ),
+                      subtitle: Text(lang.name, style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.muted)),
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle, color: AppColors.primary)
+                          : null,
+                      onTap: () {
+                        widget.onLanguageChanged(lang.code);
+                        Navigator.pop(ctx);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPrivacyModal() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            const Icon(Icons.lock_outline, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Text('Privacy & Data', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'Your voice recordings are securely stored on your local device. Inferences are processed with privacy-preserving feature extraction (MFCCs & acoustic parameters only). You can clear all cached voice data anytime.',
+          style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.textSub, height: 1.45),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Got it'),
           ),
         ],
       ),
     );
   }
+
+  void _showCaregiverModal() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            const Icon(Icons.people_outline, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Text('Caregiver Setup', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Primary Contact:', style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted)),
+            const SizedBox(height: 4),
+            Text('Ananya Devi (Daughter) · +91 98765 43210', style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.text)),
+            const SizedBox(height: 12),
+            Text('Automatic Alerts:', style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted)),
+            const SizedBox(height: 4),
+            Text('Send SMS notification if screening indicates elevated risk.', style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.textSub)),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteRecordings() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          'Delete Voice Recordings?',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.danger),
+        ),
+        content: const Text(
+          'This will permanently remove all stored voice audio files from your device. Historical risk scores and screening summaries will be retained.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('All local voice recordings deleted successfully.'),
+                  backgroundColor: AppColors.danger,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title
+            Text(
+              'Profile & Settings',
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // User Info Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: AppColors.primary,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.userName == 'Friend' ? 'Rama Devi' : widget.userName,
+                        style: GoogleFonts.outfit(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Age 72 · $_currentLanguageName',
+                        style: GoogleFonts.notoSans(
+                          fontSize: 13,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Toggles Card (Audio Instructions & Data Saver)
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Audio Instructions
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Audio Instructions',
+                              style: GoogleFonts.outfit(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.text,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Hear instructions spoken aloud',
+                              style: GoogleFonts.notoSans(
+                                fontSize: 12,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: _audioInstructions,
+                          onChanged: (val) => setState(() => _audioInstructions = val),
+                          activeColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1, color: AppColors.border),
+
+                  // Data Saver
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Data Saver',
+                              style: GoogleFonts.outfit(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.text,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Sync recordings when connection is better',
+                              style: GoogleFonts.notoSans(
+                                fontSize: 12,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Switch(
+                          value: _dataSaver,
+                          onChanged: (val) => setState(() => _dataSaver = val),
+                          activeColor: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Navigation Options Card (Language, Privacy, Caregiver, Help)
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildListRow(
+                    icon: Icons.language,
+                    title: 'Language',
+                    trailingText: _currentLanguageName,
+                    onTap: _showLanguageSelector,
+                  ),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildListRow(
+                    icon: Icons.lock_outline,
+                    title: 'Privacy',
+                    trailingText: 'Manage →',
+                    onTap: _showPrivacyModal,
+                  ),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildListRow(
+                    icon: Icons.people_outline,
+                    title: 'Caregiver',
+                    trailingText: 'Set up →',
+                    onTap: _showCaregiverModal,
+                  ),
+                  const Divider(height: 1, color: AppColors.border),
+                  _buildListRow(
+                    icon: Icons.help_outline,
+                    title: 'Help',
+                    trailingText: 'View →',
+                    onTap: widget.onHelp,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Delete my voice recordings Button
+            InkWell(
+              onTap: _confirmDeleteRecordings,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Center(
+                  child: Text(
+                    'Delete my voice recordings',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.danger,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListRow({
+    required IconData icon,
+    required String title,
+    required String trailingText,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.textSub, size: 20),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.outfit(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+            ),
+            Text(
+              trailingText,
+              style: GoogleFonts.notoSans(
+                fontSize: 13,
+                color: AppColors.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
