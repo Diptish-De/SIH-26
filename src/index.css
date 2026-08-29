@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes pulse-ring-2 {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@keyframes bar-wave {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes splash-logo {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes waveform-idle {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(0.7); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+.animate-splash {
+  animation: splash-logo 0.8s ease-out both;
+}
+
+.bar-wave {
+  animation: bar-wave 1s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+.bar-idle {
+  animation: waveform-idle 2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+.pulse-ring-1 {
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+.pulse-ring-2 {
+  animation: pulse-ring-2 1.8s ease-out 0.4s infinite;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+* { box-sizing: border-box; }
+
+:root {
+  --nv-primary: #0891b2;
+  --nv-primary-dark: #0e7490;
+  --nv-primary-light: #e0f7fa;
+  --nv-bg: #f0f9ff;
+  --nv-surface: #ffffff;
+  --nv-text: #0f172a;
+  --nv-muted: #64748b;
+  --nv-border: #e2e8f0;
+  --nv-success: #16a34a;
+  --nv-warning: #d97706;
+  --nv-orange: #ea580c;
+  --nv-amber: #f59e0b;
+  --nv-error: #dc2626;
+  --nv-font-display: 'Outfit', system-ui, sans-serif;
+  --nv-font-body: 'Noto Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+}

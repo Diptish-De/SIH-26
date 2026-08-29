@@ -1,0 +1,1858 @@
+Yes. Since your current Figma already has the **base patient app**, this prompt should tell Figma to **UPDATE the existing design rather than regenerate it**.
+
+The changes below incorporate the SIH-specific features we discussed: voice quality, proper screening flow, offline/low bandwidth, caregiver, health worker, longitudinal monitoring, privacy, referral, multilingual behavior, and better clinical safety.
+
+Copy-paste this **as a change/update prompt inside the existing Figma project**:
+
+```text
+UPDATE THE EXISTING NEUROVOICE MOBILE APP.
+
+IMPORTANT:
+Do NOT redesign the existing application from scratch.
+Do NOT replace the current visual identity.
+Do NOT change the existing overall color palette, typography direction, card style, rounded corners, spacing system, or bottom navigation unless specifically instructed below.
+
+The current design already has:
+- Light blue background
+- Teal primary color
+- Rounded cards
+- Large typography
+- Simple elderly-friendly layout
+- Home / History / Help / Profile navigation
+- Language selection
+- Welcome
+- Consent
+- Basic profile
+- History
+- Help
+- Profile
+
+KEEP THAT FOUNDATION.
+
+The goal now is to UPDATE and COMPLETE the application into a polished SIH-ready Alzheimer’s early-screening app.
+
+App name:
+NEUROVOICE
+
+Tagline:
+“Listen. Speak. Screen Early.”
+
+CORE PURPOSE:
+NeuroVoice is a voice-first mobile application for EARLY SCREENING of Alzheimer’s disease.
+
+It is NOT a diagnostic application.
+
+The app collects short speech/voice samples through guided tasks, analyzes voice and speech biomarkers using an AI backend, and produces a screening result with confidence/uncertainty.
+
+If the screening indicates elevated risk, the app should guide the user toward a healthcare professional.
+
+==================================================
+PART 1 — GLOBAL DESIGN REFINEMENT
+==================================================
+
+Preserve the current visual language but make it more polished and consistent.
+
+CURRENT ISSUE:
+The existing screens use several emojis such as:
+📋
+❓
+👨‍👩‍👧
+🌐
+📞
+🔒
+❤️
+
+UPDATE:
+Replace most functional emojis with a consistent professional icon set.
+
+Use:
+- microphone icon
+- speaker/audio icon
+- history icon
+- help icon
+- caregiver/family icon
+- language/globe icon
+- privacy/lock icon
+- doctor/medical icon
+- warning icon
+- checkmark
+- offline/cloud-sync icon
+- calendar icon
+
+Emojis can remain ONLY for friendly human moments such as:
+“नमस्ते 👋”
+
+Do not use emojis as the primary visual language for navigation or important healthcare information.
+
+Keep the app friendly, but make it look like a real healthcare product rather than an AI-generated prototype.
+
+==================================================
+PART 2 — HOME SCREEN UPDATE
+==================================================
+
+KEEP the current Home structure because it is already good.
+
+Improve it rather than replacing it.
+
+Current hierarchy:
+
+Greeting
+↓
+Voice Check card
+↓
+Previous Check
+↓
+History / Help / Caregiver
+↓
+Bottom navigation
+
+Maintain this.
+
+UPDATE the greeting so it is fully language-dependent.
+
+Do NOT mix:
+“नमस्ते”
+with
+“How are you feeling today?”
+
+If Hindi is selected, show Hindi.
+If Bengali is selected, show Bengali.
+If English is selected, show English.
+
+Example Hindi:
+
+“नमस्ते, [Name] 👋”
+“आज हम एक छोटा Voice Check करेंगे।”
+
+English:
+
+“Hello, [Name] 👋”
+“Let’s do a short Voice Check today.”
+
+The Voice Check card remains the dominant element.
+
+Change copy to:
+
+“Voice Check”
+
+“Take a short 3–5 minute screening.”
+
+“Speak naturally. There are no right or wrong answers.”
+
+Primary CTA:
+
+“Start Voice Check”
+
+Secondary action:
+
+“Someone is helping me”
+
+The previous check card should display:
+
+Last check
+12 Aug 2026
+Completed
+
+If there is an elevated result, display:
+
+“Further evaluation recommended”
+
+rather than simply “Completed”.
+
+Add a subtle status indicator for connectivity near the top:
+
+Online
+
+or
+
+Offline
+
+Do not make this visually dominant.
+
+==================================================
+PART 3 — LANGUAGE SYSTEM UPDATE
+==================================================
+
+Keep the existing language selection screen.
+
+Improve it so that language is treated as a CORE application feature.
+
+Supported languages should include:
+
+English
+हिन्दी
+বাংলা
+मराठी
+தமிழ்
+తెలుగు
+ગુજરાતી
+ಕನ್ನಡ
+മലയാളം
+
+The selected language must control:
+
+1. UI text
+2. Voice instructions
+3. Questions/prompts
+4. Memory-task words
+5. Recording instructions
+6. Result explanations
+7. Help content
+
+Add a prominent:
+
+🔊 Listen
+
+button.
+
+When selected, it should play the language name/instruction aloud.
+
+IMPORTANT:
+Do not simply translate the English UI.
+
+Design the interface so longer Indian-language strings fit naturally.
+
+Demonstrate at least:
+English version
+Hindi version
+Bengali version
+
+for the important screening screens.
+
+==================================================
+PART 4 — PROFILE UPDATE
+==================================================
+
+Keep the current profile screen.
+
+Simplify it further.
+
+Required:
+- Name
+- Age
+
+Preferred language is already selected during onboarding.
+
+Do not add unnecessary medical questions.
+
+Keep:
+
+“Someone is helping me”
+
+as a caregiver-assisted toggle.
+
+If enabled, show:
+
+“Caregiver-assisted mode”
+
+Allow caregiver information to be added later.
+
+Use large fields and large CTA.
+
+==================================================
+PART 5 — VOICE CHECK INTRODUCTION
+==================================================
+
+Create/refine the screen after the user taps:
+
+START VOICE CHECK
+
+Heading:
+
+“Let’s begin”
+
+Supporting:
+
+“This short check takes about 3–5 minutes.”
+
+Add a simple visual progress explanation:
+
+01
+Listen
+
+02
+Speak
+
+03
+Complete
+
+Add:
+
+🔊 Listen to instructions
+
+Primary:
+
+“Begin Voice Check”
+
+Secondary:
+
+“Someone is helping me”
+
+Add a small reassuring message:
+
+“There are no right or wrong answers. Speak naturally and take your time.”
+
+==================================================
+PART 6 — SCREENING PROGRESS
+==================================================
+
+During the actual Voice Check, REMOVE the normal bottom navigation.
+
+The user should focus only on the screening.
+
+Use:
+
+← Back
+
+“Voice Check”
+
+Progress indicator
+
+Exit icon/button
+
+Create a simple progress indicator such as:
+
+Step 1 of 4
+
+or
+
+● ━━━ ○ ━━━ ○ ━━━ ○
+
+Do not make it complicated.
+
+If the user presses Exit, show:
+
+“Leave Voice Check?”
+
+“You can continue the screening later.”
+
+Buttons:
+
+“Continue Check”
+
+“Exit”
+
+==================================================
+PART 7 — STANDARDIZE ALL VOICE TASKS
+==================================================
+
+Create ONE reusable Voice Task component.
+
+Every voice task should use the same interaction pattern:
+
+LISTEN
+↓
+UNDERSTAND
+↓
+START SPEAKING
+↓
+RECORD
+↓
+REVIEW
+↓
+CONTINUE
+
+Do NOT design a different recording interface for every task.
+
+Create reusable states:
+
+1. Ready
+2. Listening
+3. Recording
+4. Paused
+5. Completed
+6. Poor Audio
+7. Processing
+8. Offline
+9. Error
+
+==================================================
+PART 8 — TASK 1: FREE SPEECH
+==================================================
+
+Create/refine the first screening task.
+
+Heading:
+
+“Tell us about your day”
+
+Supporting:
+
+“Speak naturally. Take your time.”
+
+Audio:
+
+🔊 Listen
+
+Primary:
+
+“Start Speaking”
+
+When recording:
+
+Large microphone.
+
+“Recording…”
+
+Timer.
+
+Animated waveform.
+
+Buttons:
+
+Pause
+Finish
+
+Make the microphone the strongest visual element.
+
+Do NOT use tiny recording controls.
+
+==================================================
+PART 9 — RECORDING REVIEW
+==================================================
+
+After recording:
+
+Heading:
+
+“Your recording is ready”
+
+Show:
+
+Waveform
+
+Duration
+
+▶ Play
+
+Buttons:
+
+“Record Again”
+
+“Continue”
+
+Continue should be the primary action.
+
+==================================================
+PART 10 — NEW FEATURE: VOICE QUALITY CHECK
+==================================================
+
+Add an intermediate quality-check state after every recording.
+
+The backend will eventually check:
+
+- background noise
+- silence
+- volume
+- clipping
+- recording duration
+- speech presence
+
+Create three UI states.
+
+GOOD AUDIO:
+
+✓
+
+“Recording looks good”
+
+“Ready to continue.”
+
+Button:
+
+“Continue”
+
+POOR AUDIO:
+
+⚠
+
+“We couldn't hear you clearly.”
+
+Possible simple reasons:
+
+“Too much background noise”
+
+or
+
+“Please speak a little closer to the phone.”
+
+Buttons:
+
+“Record Again”
+
+“Continue Anyway”
+
+Do not use technical terminology.
+
+VERY LOW AUDIO:
+
+“We couldn't detect enough speech.”
+
+Primary:
+
+“Record Again”
+
+This feature should be clearly represented in the prototype.
+
+==================================================
+PART 11 — TASK 2: PICTURE DESCRIPTION
+==================================================
+
+Create/refine the picture description task.
+
+Heading:
+
+“What do you see?”
+
+Show a large, simple picture.
+
+The image should have enough objects/actions to encourage natural description.
+
+Supporting:
+
+“Tell us what you see in the picture.”
+
+Audio:
+
+🔊 Listen
+
+Primary:
+
+“Start Speaking”
+
+Then use the same recording component.
+
+After recording:
+
+Voice Quality Check
+
+→ Review
+
+→ Continue
+
+Do not require typing.
+
+==================================================
+PART 12 — TASK 3: MEMORY / RECALL
+==================================================
+
+Create a voice-based memory task.
+
+Screen 1:
+
+“Listen carefully”
+
+Large speaker button:
+
+🔊 Play
+
+The app speaks several simple words in the selected language.
+
+Do not require the user to read them.
+
+Then move to the recall screen.
+
+Heading:
+
+“What do you remember?”
+
+Supporting:
+
+“Tell us the words you remember.”
+
+Buttons:
+
+🔊 Listen Again
+
+🎙 Start Speaking
+
+Use the same recording component.
+
+Then:
+
+Voice Quality Check
+→ Review
+→ Continue
+
+==================================================
+PART 13 — TASK 4: CONVERSATIONAL SPEECH
+==================================================
+
+Create a final natural speech task.
+
+Example:
+
+“Tell us about something you enjoy doing.”
+
+Supporting:
+
+“There are no right or wrong answers.”
+
+Audio:
+
+🔊 Listen
+
+Primary:
+
+“Start Speaking”
+
+Use the same recording component.
+
+==================================================
+PART 14 — TEST COMPLETION
+==================================================
+
+After all tasks:
+
+Large checkmark illustration.
+
+Heading:
+
+“You’re done!”
+
+Supporting:
+
+“Thank you. We’re checking your voice now.”
+
+Do not say:
+“AI is diagnosing you.”
+
+Do not mention quantum computing.
+
+Primary:
+
+“Continue”
+
+==================================================
+PART 15 — PROCESSING SCREEN
+==================================================
+
+Create a polished processing state.
+
+Heading:
+
+“Analyzing your voice…”
+
+Show a subtle animated waveform.
+
+Supporting:
+
+“This may take a moment.”
+
+Do NOT display:
+
+Quantum
+XGBoost
+Xception
+Neural Network
+Feature Extraction
+Classification
+Machine Learning
+
+These are backend technologies.
+
+Patient experience should remain simple.
+
+Add a secondary status:
+
+“Your information is processed securely.”
+
+==================================================
+PART 16 — RESULT SYSTEM
+==================================================
+
+Create THREE distinct screening result states.
+
+Never use language that implies confirmed Alzheimer's disease.
+
+Never say:
+
+“You have Alzheimer’s.”
+
+Never say:
+
+“You do not have Alzheimer’s.”
+
+Never say:
+
+“You are healthy.”
+
+Use “screening” terminology.
+
+------------------------------------------
+RESULT A — LOW / NO IMMEDIATE CONCERN
+------------------------------------------
+
+Heading:
+
+“Your Voice Check is complete”
+
+Main:
+
+“No immediate concern detected”
+
+Supporting:
+
+“This screening did not identify patterns that require immediate follow-up.”
+
+Secondary:
+
+“Continue regular health check-ups.”
+
+Buttons:
+
+“Done”
+
+“View History”
+
+Use calm green/neutral status styling.
+
+------------------------------------------
+RESULT B — ELEVATED
+------------------------------------------
+
+Use amber/orange, not emergency red.
+
+Heading:
+
+“Further evaluation recommended”
+
+Supporting:
+
+“The screening found some patterns that may benefit from professional assessment.”
+
+Main CTA:
+
+“Talk to a Healthcare Professional”
+
+Secondary:
+
+“View Screening Details”
+
+Additional action:
+
+“Share with Caregiver”
+
+Disclaimer:
+
+“This screening does not replace a medical diagnosis.”
+
+------------------------------------------
+RESULT C — UNCERTAIN
+------------------------------------------
+
+Heading:
+
+“We need a clearer recording”
+
+Supporting:
+
+“We couldn't confidently analyze this recording.”
+
+Possible reason:
+
+“Audio quality was not sufficient.”
+
+Buttons:
+
+“Try Again”
+
+“Talk to a Healthcare Professional”
+
+==================================================
+PART 17 — CONFIDENCE / UNCERTAINTY
+==================================================
+
+Add simple confidence information.
+
+IMPORTANT:
+Do not overload the elderly user.
+
+Patient-facing example:
+
+“Screening confidence”
+
+High confidence
+
+or
+
+Moderate confidence
+
+If confidence is low:
+
+“Your result is uncertain. A clearer recording or professional assessment may help.”
+
+The detailed uncertainty metrics should remain in the doctor interface.
+
+Do NOT display confusing decimals or model terminology.
+
+==================================================
+PART 18 — SCREENING DETAILS
+==================================================
+
+Create a patient-friendly details page.
+
+Show:
+
+Screening date
+Recording quality
+Screening result
+Confidence level
+
+Example:
+
+Screening result:
+Further evaluation recommended
+
+Confidence:
+High
+
+Recording:
+Good quality
+
+Do not show:
+MFCC
+Jitter values
+Shimmer values
+XGBoost
+Xception
+Quantum circuit
+Feature vector
+SHAP values
+
+Technical information belongs only to the clinician dashboard.
+
+==================================================
+PART 19 — HISTORY UPDATE
+==================================================
+
+Keep the current History design.
+
+Improve cards so they clearly communicate screening status.
+
+Example:
+
+AUGUST 2026
+
+✓ Completed · 12 Aug
+
+Further evaluation recommended
+
+JULY 2026
+
+✓ Completed · 15 Jul
+
+No immediate concern detected
+
+JUNE 2026
+
+✓ Completed · 9 Jun
+
+No immediate concern detected
+
+Use text + icon + status, not color alone.
+
+Add:
+
+“View Progress Trend”
+
+==================================================
+PART 20 — LONGITUDINAL MONITORING
+==================================================
+
+Create a new Progress Trend screen.
+
+Heading:
+
+“Screening Trend”
+
+Show a simple line chart based on previous screening scores.
+
+Example:
+
+June
+22%
+
+July
+25%
+
+August
+31%
+
+September
+39%
+
+Use neutral language:
+
+“Screening trend over time”
+
+Do NOT label it:
+
+“Alzheimer’s progression”
+
+Do NOT claim that the trend confirms disease progression.
+
+Supporting:
+
+“Your screening history can help healthcare professionals understand changes over time.”
+
+Add:
+
+“Share Trend with Doctor”
+
+==================================================
+PART 21 — CAREGIVER MODE
+==================================================
+
+The existing Caregiver option should now lead to a real caregiver flow.
+
+Screen:
+
+“Someone is helping me”
+
+Options:
+
+Family Member
+Caregiver
+Health Worker
+
+Caregiver can:
+
+- Select a person
+- Add a person
+- Choose language
+- Start Voice Check
+- Assist during recording
+- View screening history
+- Share results with healthcare professional
+
+Create a simple caregiver home.
+
+Example:
+
+“People I help”
+
+Rama Devi
+Age 72
+Last check: 12 Aug
+Status: Follow-up recommended
+
+Button:
+
+“Start Voice Check”
+
+==================================================
+PART 22 — CAREGIVER ALERT
+==================================================
+
+After an elevated screening result:
+
+Show:
+
+“Further evaluation recommended”
+
+Then:
+
+“Would you like to notify your caregiver?”
+
+Buttons:
+
+“Notify Caregiver”
+
+“Not Now”
+
+Add:
+
+🔒 “Shared only with permission.”
+
+==================================================
+PART 23 — HEALTH WORKER MODE
+==================================================
+
+Create a new health-worker flow.
+
+Health worker home:
+
+“Today’s Screenings”
+
+Cards:
+
+Rama Devi
+✓ Completed
+
+Suresh Das
+✓ Completed
+
+Anita Devi
+⚠ Follow-up recommended
+
+Mohan Singh
+⏳ Waiting to sync
+
+Primary button:
+
+“Add Person”
+
+Secondary:
+
+“Search Person”
+
+Health worker can:
+
+- add patient
+- select language
+- conduct screening
+- see basic result
+- mark follow-up
+- connect patient to healthcare professional
+- sync offline records
+
+Keep this interface slightly more information-dense than the elderly patient interface.
+
+==================================================
+PART 24 — OFFLINE MODE
+==================================================
+
+This is a CORE India/rural feature.
+
+Do NOT treat offline mode as only an error page.
+
+The app should continue functioning when there is no internet.
+
+Create:
+
+OFFLINE STATUS
+
+Top banner:
+
+“Offline”
+
+Supporting:
+
+“You can continue the Voice Check. Your recording will be saved and synced when internet is available.”
+
+After recording:
+
+“Saved safely”
+
+“Waiting to sync”
+
+Buttons:
+
+“Continue”
+
+“View Sync Status”
+
+Create a sync status screen:
+
+3 screenings waiting to sync
+
+When internet returns:
+
+“Sync complete”
+
+✓ 3 screenings uploaded
+
+==================================================
+PART 25 — LOW BANDWIDTH MODE
+==================================================
+
+Add a Data Saver setting.
+
+Profile:
+
+Data Saver
+
+Description:
+
+“Use less mobile data by syncing recordings when a better connection is available.”
+
+Toggle ON/OFF.
+
+When active:
+
+“Data Saver is on”
+
+“Recordings will sync when a better connection is available.”
+
+==================================================
+PART 26 — CONNECTIVITY INDICATOR
+==================================================
+
+Add a small connectivity state throughout relevant screens.
+
+States:
+
+Online
+
+Offline
+
+Syncing
+
+Sync Complete
+
+Do NOT use large technical banners unless necessary.
+
+The indicator should be clear but unobtrusive.
+
+==================================================
+PART 27 — HELP UPDATE
+==================================================
+
+Keep current Help screen but replace emoji-based icons with the same professional icon system.
+
+Use large cards:
+
+Listen to Instructions
+“Hear instructions in your language”
+
+Someone Help Me
+“Get help from a family member”
+
+Change Language
+“Switch to another language”
+
+Contact Support
+“Speak with our support team”
+
+How Voice Check Works
+“Learn about the screening”
+
+Add:
+
+“What if I don't have internet?”
+
+This should explain offline behavior.
+
+==================================================
+PART 28 — PROFILE UPDATE
+==================================================
+
+Keep current Profile layout.
+
+Update options to:
+
+Personal Information
+Audio Instructions
+Data Saver
+Language
+Privacy
+Caregiver
+Help
+
+Add:
+
+“Manage Voice Recordings”
+
+“Delete My Voice Recordings”
+
+Use a confirmation dialog before deletion:
+
+“Delete voice recordings?”
+
+“This cannot be undone.”
+
+Buttons:
+
+“Cancel”
+
+“Delete”
+
+==================================================
+PART 29 — PRIVACY
+==================================================
+
+Create a clean Privacy screen.
+
+Heading:
+
+“Your voice, your choice.”
+
+Show:
+
+🔒 Secure storage
+🎙 Voice recordings
+👤 Permission
+🗑 Delete recordings
+
+Explain simply:
+
+“Your voice recordings are sensitive information. They are used for the screening process and shared with healthcare professionals only with permission.”
+
+Include:
+
+“Manage Recordings”
+
+“Delete Recordings”
+
+“Manage Sharing”
+
+Do not use a huge legal document as the primary UI.
+
+==================================================
+PART 30 — DOCTOR REFERRAL FLOW
+==================================================
+
+When screening result is elevated:
+
+Result
+↓
+Screening Details
+↓
+Talk to Healthcare Professional
+
+Create:
+
+“Healthcare Professionals”
+
+Example cards:
+
+Neurologist
+Available
+
+General Physician
+Available
+
+Health Worker
+Available
+
+Actions:
+
+“Start Consultation”
+
+“Schedule”
+
+“Share Screening”
+
+==================================================
+PART 31 — TELEMEDICINE
+==================================================
+
+Create a basic telemedicine flow for prototype demonstration.
+
+Patient:
+
+“Talk to a Healthcare Professional”
+
+Doctor card
+
+Doctor name
+
+Specialization
+
+Availability
+
+Button:
+
+“Start Video Consultation”
+
+Alternative:
+
+“Audio Consultation”
+
+Create a clean consultation screen.
+
+Do not make it overly complex.
+
+==================================================
+PART 32 — DOCTOR / CLINICAL VIEW
+==================================================
+
+Create a separate professional dashboard flow.
+
+This should NOT look like the elderly patient UI.
+
+Doctor dashboard should include:
+
+Dashboard
+Patients
+Screenings
+Follow-ups
+Teleconsultation
+
+Patient profile:
+
+Name
+Age
+Language
+Screening history
+
+Current Screening:
+
+Screening Risk
+Confidence
+Audio Quality
+
+Voice Analysis:
+
+Speech Rate
+Pause Patterns
+Pitch Variation
+Jitter
+Shimmer
+HNR
+Acoustic Features
+Speech/Language Features
+
+AI Analysis:
+
+Classical Model
+Xception + XGBoost
+
+Hybrid Model
+Quantum-enhanced model
+
+Show model comparison using:
+
+Accuracy
+Precision
+Recall
+F1
+AUC
+
+DO NOT invent values.
+Use placeholders if necessary:
+
+—%
+
+==================================================
+PART 33 — CLINICAL EXPLAINABILITY
+==================================================
+
+Create a doctor-only Explainable AI section.
+
+Heading:
+
+“Factors influencing screening result”
+
+Show visual bars for model-derived indicators.
+
+Example:
+
+Pause patterns
+Speech rate
+Pitch variation
+Acoustic features
+Language features
+
+Label clearly:
+
+“Model-derived indicators — not a clinical diagnosis.”
+
+==================================================
+PART 34 — DOCTOR LONGITUDINAL VIEW
+==================================================
+
+Doctor should see patient screening history.
+
+Example:
+
+June
+22%
+
+July
+25%
+
+August
+31%
+
+September
+39%
+
+Show:
+
+Current screening
+
+Previous screening
+
+Trend
+
+Do not call this definitive disease progression.
+
+Use:
+
+“Longitudinal screening trend”
+
+==================================================
+PART 35 — SCREENING REPORT
+==================================================
+
+Create a doctor-facing report screen.
+
+Title:
+
+“NeuroVoice Screening Report”
+
+Include:
+
+Patient details
+Screening date
+Language
+Audio quality
+Screening result
+Confidence
+Voice feature summary
+Model analysis
+Previous screening trend
+Recommendation
+
+Actions:
+
+“Download Report”
+
+“Share with Doctor”
+
+“Add Clinical Note”
+
+==================================================
+PART 36 — FOLLOW-UP SYSTEM
+==================================================
+
+After doctor review, create a follow-up state.
+
+Doctor can select:
+
+Repeat Voice Screening
+
+Schedule Consultation
+
+In-person Evaluation
+
+No Immediate Follow-up
+
+Add Follow-up Date.
+
+Patient then sees:
+
+“Your next Voice Check is due on [date].”
+
+==================================================
+PART 37 — REMINDER SYSTEM
+==================================================
+
+Create simple reminder UI.
+
+Example:
+
+“Your next Voice Check is coming up.”
+
+“Regular screening helps track changes over time.”
+
+Buttons:
+
+“Start Voice Check”
+
+“Remind Me Later”
+
+Caregiver can also receive reminders with permission.
+
+==================================================
+PART 38 — ERROR STATES
+==================================================
+
+Create polished error states for:
+
+Microphone permission denied
+Poor microphone quality
+Recording too short
+No speech detected
+Too much background noise
+Internet unavailable
+Upload failed
+Sync failed
+
+Example:
+
+“Microphone access is needed”
+
+“To record your voice, please allow microphone access.”
+
+Button:
+
+“Allow Microphone”
+
+Alternative:
+
+“Try Again”
+
+Do not use scary red error screens.
+
+==================================================
+PART 39 — EMPTY STATES
+==================================================
+
+Create empty states for:
+
+No previous screenings
+
+“No Voice Checks yet.”
+
+“No worries. Your first check takes about 3–5 minutes.”
+
+Button:
+
+“Start Voice Check”
+
+No caregivers:
+
+“No caregiver added.”
+
+Button:
+
+“Add Caregiver”
+
+No doctor:
+
+“No healthcare professional connected.”
+
+Button:
+
+“Find Healthcare Professional”
+
+==================================================
+PART 40 — ACCESSIBILITY UPDATE
+==================================================
+
+Apply these rules across the entire app:
+
+Large typography.
+
+Large touch targets.
+
+High contrast.
+
+Clear icons.
+
+Short sentences.
+
+Audio instructions.
+
+Minimal typing.
+
+No swipe-only interaction.
+
+No complicated gestures.
+
+No tiny controls.
+
+No critical information communicated through color alone.
+
+All status colors must also have text and icon.
+
+Example:
+
+🟢 No immediate concern
+
+🟠 Further evaluation recommended
+
+🟡 Uncertain result
+
+==================================================
+PART 41 — PATIENT UX RULE
+==================================================
+
+The patient-facing app should ALWAYS answer:
+
+“What do I do now?”
+
+Every screen should have one obvious primary action.
+
+Examples:
+
+Start Voice Check
+Start Speaking
+Continue
+Record Again
+View Result
+Talk to Healthcare Professional
+
+Avoid multiple equally prominent CTAs.
+
+==================================================
+PART 42 — VOICE-FIRST RULE
+==================================================
+
+During screening:
+
+The user should not type.
+
+The user should not read long paragraphs.
+
+The user should not navigate complex menus.
+
+The primary interaction should always be:
+
+Listen → Speak → Continue
+
+Every instruction should have an audio playback option.
+
+==================================================
+PART 43 — DESIGN SYSTEM UPDATE
+==================================================
+
+Create/reuse consistent components:
+
+Primary Button
+Secondary Button
+Large CTA
+Voice Button
+Audio Button
+Recording Button
+Language Card
+Screening Card
+Risk Card
+Patient Card
+Status Badge
+Offline Banner
+Sync Status
+Waveform
+Audio Player
+Progress Indicator
+Bottom Navigation
+Top Navigation
+Input Field
+Toggle
+Modal
+Confirmation Dialog
+Toast
+Loading State
+Success State
+Warning State
+Error State
+
+Voice component states:
+
+Ready
+Recording
+Paused
+Review
+Poor Audio
+Processing
+Offline
+Error
+
+==================================================
+PART 44 — PATIENT NAVIGATION
+==================================================
+
+Patient bottom navigation remains:
+
+Home
+History
+Help
+Profile
+
+Do not add more tabs.
+
+During the Voice Check:
+
+REMOVE bottom navigation.
+
+Show only:
+
+Back
+Progress
+Exit
+
+This keeps the user focused.
+
+==================================================
+PART 45 — FIGMA ORGANIZATION
+==================================================
+
+Update the existing Figma file structure.
+
+Use:
+
+00 — Cover
+01 — Design System
+02 — Patient App
+03 — Voice Screening
+04 — Caregiver
+05 — Health Worker
+06 — Doctor
+07 — Telemedicine
+08 — States
+09 — Prototype Flow
+
+Do not duplicate components unnecessarily.
+
+Use Auto Layout.
+
+Use reusable components and variants.
+
+==================================================
+PART 46 — FINAL CLICKABLE PROTOTYPE
+==================================================
+
+Connect the main prototype completely.
+
+MAIN FLOW:
+
+Home
+↓
+Start Voice Check
+↓
+Introduction
+↓
+Instruction
+↓
+Task 1
+↓
+Recording
+↓
+Voice Quality Check
+↓
+Review
+↓
+Task 2
+↓
+Recording
+↓
+Voice Quality Check
+↓
+Review
+↓
+Task 3 Memory
+↓
+Recall Recording
+↓
+Voice Quality Check
+↓
+Review
+↓
+Task 4
+↓
+Recording
+↓
+Voice Quality Check
+↓
+Completion
+↓
+Processing
+↓
+Result
+
+BRANCH:
+
+Low Risk
+→ History
+→ Monitor
+
+Elevated Risk
+→ Screening Details
+→ Share with Caregiver
+→ Healthcare Professional
+→ Telemedicine
+
+Uncertain
+→ Record Again
+
+OFFLINE:
+
+Recording
+→ Saved Safely
+→ Waiting to Sync
+→ Sync Later
+
+CAREGIVER:
+
+Home
+→ Someone is helping me
+→ Caregiver Mode
+→ Select Person
+→ Start Screening
+
+HEALTH WORKER:
+
+Health Worker
+→ Add Person
+→ Select Language
+→ Screening
+→ Result
+→ Follow-up
+→ Sync
+
+==================================================
+PART 47 — IMPORTANT: DO NOT OVERDESIGN
+==================================================
+
+The current app has a good clean foundation.
+
+Do NOT add:
+- excessive dashboard cards
+- unnecessary statistics
+- decorative AI graphics
+- futuristic quantum visuals
+- complicated medical charts to patient screens
+- excessive animations
+- unnecessary gamification
+- unnecessary login screens
+- unnecessary health questionnaires
+
+The application should remain simple.
+
+The complexity belongs in the backend and clinician interface.
+
+==================================================
+FINAL PRODUCT STANDARD
+==================================================
+
+After these updates, NeuroVoice should communicate three things immediately:
+
+1. This is extremely easy for an elderly person to use.
+2. This is designed specifically for India's multilingual and rural environment.
+3. This is a serious healthcare screening platform rather than just an AI demo.
+
+The patient experience should feel like:
+
+LISTEN
+↓
+SPEAK
+↓
+DONE
+
+The healthcare experience should feel like:
+
+SCREEN
+↓
+ANALYZE
+↓
+REVIEW
+↓
+REFER
+↓
+MONITOR
+
+The underlying technology may be sophisticated:
+
+Voice Biomarkers
++
+Classical ML
++
+Quantum ML
++
+Confidence / Uncertainty
++
+Longitudinal Analysis
+
+But NONE of that complexity should make the patient UI complicated.
+
+Preserve the existing NeuroVoice visual identity and implement these updates as a coherent extension of the current Figma design.
+```
+
+### One thing I specifically want you to do after Figma applies this
+
+**Don't immediately add more features.** Your current app will then have three very different experiences:
+
+**Patient →** extremely simple
+**Health worker/caregiver →** operational
+**Doctor →** analytical
+
+That separation is what will make your SIH prototype strong.
+
+For the **internal SIH round**, I'd make the clickable demo's hero journey:
+
+**Hindi/Bengali selection → elderly user → Voice Check → real recording UI → noise/quality check → tasks → AI processing → elevated result → caregiver/doctor → teleconsultation → screening trend.**
+
+That one journey can demonstrate almost your entire solution without having to explain every feature verbally.

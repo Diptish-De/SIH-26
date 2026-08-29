@@ -1,0 +1,12 @@
+{
+  "appId": "org.swarsanket.app",
+  "appName": "SwarSanket",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

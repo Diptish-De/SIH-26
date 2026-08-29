@@ -1,0 +1,144 @@
+// ─── SwarSanket Clinical Screening Report Generator ───────────────────────────
+
+import { ScreeningSession } from "../types";
+
+export function generateAndDownloadReport(session: ScreeningSession): void {
+  const dateFormatted = new Date(session.createdAt).toLocaleString("en-IN", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+
+  const riskColor =
+    session.mlResult.screeningRisk === "low"
+      ? "#16a34a"
+      : session.mlResult.screeningRisk === "elevated"
+      ? "#c2410c"
+      : "#d97706";
+
+  const riskBg =
+    session.mlResult.screeningRisk === "low"
+      ? "#dcfce7"
+      : session.mlResult.screeningRisk === "elevated"
+      ? "#fff7ed"
+      : "#fef3c7";
+
+  const reportHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SwarSanket Screening Report - ${session.patientName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans:wght@400;500;600&display=swap');
+    body { font-family: 'Noto Sans', sans-serif; color: #0f172a; margin: 0; padding: 32px; background: #f8fafc; }
+    .page { max-width: 800px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 24px; }
+    .logo-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; color: #0891b2; letter-spacing: -0.02em; }
+    .tagline { font-size: 13px; color: #64748b; margin-top: 2px; }
+    .report-meta { text-align: right; font-size: 12px; color: #64748b; }
+    .badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .card-title { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 10px; }
+    .stat-row { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: #64748b; }
+    .stat-val { font-weight: 600; color: #0f172a; }
+    .alert-box { background: ${riskBg}; border: 1px solid ${riskColor}40; border-radius: 12px; padding: 18px; margin-bottom: 24px; }
+    .disclaimer { background: #f1f5f9; border-radius: 8px; padding: 12px; font-size: 12px; color: #64748b; text-align: center; margin-top: 32px; line-height: 1.5; }
+    .print-btn { display: block; margin: 20px auto 0; padding: 12px 28px; background: #0891b2; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    @media print { .print-btn { display: none; } body { padding: 0; background: #fff; } .page { box-shadow: none; border: none; padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div>
+        <div class="logo-title">SwarSanket</div>
+        <div class="tagline">Early Cognitive & Voice Biomarker Screening</div>
+      </div>
+      <div class="report-meta">
+        <div><strong>Report ID:</strong> ${session.id}</div>
+        <div><strong>Date:</strong> ${dateFormatted}</div>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: ${riskColor};">
+          Screening Result: ${session.mlResult.screeningRisk.toUpperCase()}
+        </span>
+        <span class="badge" style="background: ${riskBg}; color: ${riskColor};">
+          ${session.mlResult.confidenceLevel.toUpperCase()} CONFIDENCE (${Math.round(session.mlResult.confidenceScore * 100)}%)
+        </span>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.5;">
+        ${
+          session.mlResult.screeningRisk === "elevated"
+            ? "Vocal and speech acoustic patterns indicate potential cognitive changes that may benefit from formal clinical evaluation by a neurologist."
+            : session.mlResult.screeningRisk === "low"
+            ? "No immediate acoustic indicators of concern were detected. Continue periodic 3–6 month screening."
+            : "Screening result is uncertain due to recording conditions or boundary score. Re-screening recommended."
+        }
+      </p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Patient Demographics</div>
+        <div class="stat-row"><span class="stat-label">Name</span><span class="stat-val">${session.patientName}</span></div>
+        <div class="stat-row"><span class="stat-label">Age</span><span class="stat-val">${session.patientAge} years</span></div>
+        <div class="stat-row"><span class="stat-label">Language</span><span class="stat-val">${session.language.toUpperCase()}</span></div>
+        <div class="stat-row"><span class="stat-label">Assisted Mode</span><span class="stat-val">${session.assistedMode ? "Yes (Caregiver)" : "No (Direct)"}</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Acoustic Biomarkers</div>
+        <div class="stat-row"><span class="stat-label">Speech Rate</span><span class="stat-val">${session.biomarkers.speechRateWpm} WPM</span></div>
+        <div class="stat-row"><span class="stat-label">Pause Ratio</span><span class="stat-val">${session.biomarkers.pausePatternRatio}%</span></div>
+        <div class="stat-row"><span class="stat-label">Pitch Jitter</span><span class="stat-val">${session.biomarkers.jitterPercent}%</span></div>
+        <div class="stat-row"><span class="stat-label">Amplitude Shimmer</span><span class="stat-val">${session.biomarkers.shimmerDb} dB</span></div>
+        <div class="stat-row"><span class="stat-label">Harmonics-to-Noise (HNR)</span><span class="stat-val">${session.biomarkers.hnrDb} dB</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-title">Dual-Engine AI / Quantum Hybrid Evaluation</div>
+      <div class="stat-row">
+        <span class="stat-label">Classical Pipeline (Xception + XGBoost)</span>
+        <span class="stat-val">Risk: ${Math.round(session.mlResult.classicalModel.riskScore * 100)}% (AUC: ${session.mlResult.classicalModel.aucScore})</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Quantum Hybrid Model (PennyLane QNN)</span>
+        <span class="stat-val">Risk: ${Math.round(session.mlResult.quantumHybridModel.riskScore * 100)}% (AUC: ${session.mlResult.quantumHybridModel.aucScore})</span>
+      </div>
+    </div>
+
+    ${
+      session.notes
+        ? `<div class="card">
+            <div class="card-title">Clinical Annotation</div>
+            <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.5;">${session.notes}</p>
+          </div>`
+        : ""
+    }
+
+    <div class="disclaimer">
+      <strong>Clinical Safety Notice:</strong> SwarSanket is an AI-assisted screening instrument, not a diagnostic medical device. This report does not constitute a formal diagnosis of Alzheimer's disease or cognitive impairment. Clinical decisions should be made by a qualified healthcare professional.
+    </div>
+
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+</body>
+</html>`;
+
+  const blob = new Blob([reportHtml], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank");
+  if (!win) {
+    // If popups blocked, download as file
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `SwarSanket_Report_${session.patientName.replace(/\s+/g, "_")}_${session.id}.html`;
+    a.click();
+  }
+}
