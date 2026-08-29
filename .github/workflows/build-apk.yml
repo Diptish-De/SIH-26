@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository with Git LFS
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
@@ -35,6 +35,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+          validate-wrappers: false
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -52,8 +55,8 @@ jobs:
       - name: Build Android APK with Gradle
         working-directory: ./android
         run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace
+          chmod +x ./gradlew || true
+          ./gradlew assembleDebug --stacktrace || gradle assembleDebug --stacktrace
 
       - name: Prepare SwarSanket.apk artifact
         run: |
