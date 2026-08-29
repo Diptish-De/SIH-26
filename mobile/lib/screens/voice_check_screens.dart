@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
@@ -221,13 +222,18 @@ class RecordingScreen extends StatefulWidget {
   State<RecordingScreen> createState() => _RecordingScreenState();
 }
 
-class _RecordingScreenState extends State<RecordingScreen> {
+class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProviderStateMixin {
   int _seconds = 0;
   Timer? _timer;
+  late AnimationController _waveAnim;
 
   @override
   void initState() {
     super.initState();
+    _waveAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat();
     _startRecording();
   }
 
@@ -243,6 +249,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _waveAnim.dispose();
     super.dispose();
   }
 
@@ -271,8 +278,10 @@ class _RecordingScreenState extends State<RecordingScreen> {
               onTap: () {
                 if (widget.recorder.isPaused) {
                   widget.recorder.resume();
+                  _waveAnim.repeat();
                 } else {
                   widget.recorder.pause();
+                  _waveAnim.stop();
                 }
                 setState(() {});
               },
@@ -284,7 +293,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
                   color: AppColors.danger,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.danger.withOpacity(0.35),
+                      color: AppColors.danger.withValues(alpha: 0.35),
                       blurRadius: 28,
                       spreadRadius: 6,
                     ),
@@ -327,23 +336,31 @@ class _RecordingScreenState extends State<RecordingScreen> {
 
             const SizedBox(height: 32),
 
-            // Animated Waveform Simulation
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(20, (index) {
-                final height = widget.recorder.isPaused
-                    ? 8.0
-                    : 10.0 + ((index * 7) % 36);
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 5,
-                  height: height,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
+            // Live Animated Sound Waves
+            AnimatedBuilder(
+              animation: _waveAnim,
+              builder: (context, child) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(24, (index) {
+                    final phase = index * (pi / 6.0);
+                    final sinVal = widget.recorder.isPaused
+                        ? 0.0
+                        : sin(_waveAnim.value * 2 * pi + phase).abs();
+                    final height = 6.0 + (sinVal * 34.0);
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      width: 4,
+                      height: height,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.6 + (sinVal * 0.4)),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    );
+                  }),
                 );
-              }),
+              },
             ),
 
             const Spacer(),

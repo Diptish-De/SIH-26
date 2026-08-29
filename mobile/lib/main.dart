@@ -4,6 +4,7 @@ import 'models/screening_models.dart';
 import 'services/tts_service.dart';
 import 'services/audio_service.dart';
 import 'services/storage_service.dart';
+import 'screens/splash_screen.dart';
 import 'screens/app_screens.dart';
 import 'screens/voice_check_screens.dart';
 import 'screens/doctor_dashboard_screen.dart';
@@ -37,7 +38,7 @@ class MainNavigationController extends StatefulWidget {
 
 class _MainNavigationControllerState extends State<MainNavigationController> {
   int _activeTabIndex = 0;
-  String _currentScreen = 'tabs'; // 'tabs', 'voiceIntro', 'instruction', 'recording', 'processing', 'result', 'doctorDash', 'doctorPatient'
+  String _currentScreen = 'splash'; // Initial animated splash screen
   String _selectedLanguage = 'en';
   final String _userName = 'Friend';
   String _selectedPatient = 'Rama Devi';
@@ -91,6 +92,11 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
 
   Widget _buildScreenContent() {
     switch (_currentScreen) {
+      case 'splash':
+        return SplashScreen(
+          onFinish: () => _navigateTo('tabs'),
+        );
+
       case 'voiceIntro':
         return VoiceIntroScreen(
           language: _selectedLanguage,
@@ -202,7 +208,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       onRestart: () {
         setState(() {
           _activeTabIndex = 0;
-          _currentScreen = 'tabs';
+          _currentScreen = 'splash';
           _hasError = false;
           _hasPreviousCheck = true;
         });
