@@ -4,30 +4,14 @@ import '../theme/app_theme.dart';
 import '../models/screening_models.dart';
 import '../services/tts_service.dart';
 
-// ─── Smartphone Shell Wrapper (Figma Simulation on Desktop/Web) ───────────────
+// ─── Smartphone Shell Wrapper (Clean Responsive Viewport) ─────────────────────
 
 class FigmaPhoneFrame extends StatelessWidget {
   final Widget child;
-  final String currentScreen;
-  final bool isOnline;
-  final VoidCallback onToggleOnline;
-  final VoidCallback onDoctorView;
-  final VoidCallback onReminder;
-  final VoidCallback onErrorState;
-  final VoidCallback onEmptyState;
-  final VoidCallback onRestart;
 
   const FigmaPhoneFrame({
     super.key,
     required this.child,
-    required this.currentScreen,
-    required this.isOnline,
-    required this.onToggleOnline,
-    required this.onDoctorView,
-    required this.onReminder,
-    required this.onErrorState,
-    required this.onEmptyState,
-    required this.onRestart,
   });
 
   @override
@@ -43,137 +27,33 @@ class FigmaPhoneFrame extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.desktopBg,
-      body: Stack(
-        children: [
-          // Top-right Control Pills (Identical to Figma)
-          Positioned(
-            top: 24,
-            right: 24,
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.end,
-              children: [
-                _buildPill(
-                  isOnline ? 'Online' : 'Offline',
-                  isOnline ? const Color(0xFF0284C7) : const Color(0xFF64748B),
-                  onToggleOnline,
-                  icon: isOnline ? Icons.wifi : Icons.wifi_off,
-                ),
-                _buildPill('Doctor View', const Color(0xFF1E293B), onDoctorView, icon: Icons.medical_services_outlined),
-                _buildPill('Reminder', const Color(0xFF7C3AED), onReminder, icon: Icons.notifications_none),
-                _buildPill('Error State', const Color(0xFFDC2626), onErrorState),
-                _buildPill('Empty State', const Color(0xFF1E293B), onEmptyState),
-                _buildPill('Restart', const Color(0xFF1E293B), onRestart, icon: Icons.restart_alt),
-              ],
-            ),
-          ),
-
-          // Centered Smartphone Container
-          Center(
-            child: Container(
-              width: 390,
-              height: 800,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(44),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.6),
-                    blurRadius: 40,
-                    spreadRadius: 10,
-                    offset: const Offset(0, 16),
-                  ),
-                ],
-                border: Border.all(color: const Color(0xFF334155), width: 3),
+      backgroundColor: const Color(0xFF0B1120),
+      body: Center(
+        child: Container(
+          width: 390,
+          height: 844,
+          decoration: BoxDecoration(
+            color: AppColors.bg,
+            borderRadius: BorderRadius.circular(36),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 40,
+                spreadRadius: 4,
+                offset: const Offset(0, 16),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(41),
-                child: Column(
-                  children: [
-                    // Dynamic Island Status Bar
-                    Container(
-                      color: AppColors.bg,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '9:41',
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                              color: AppColors.text,
-                            ),
-                          ),
-                          // Dynamic Island Pill
-                          Container(
-                            width: 80,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          const Row(
-                            children: [
-                              Icon(Icons.signal_cellular_alt, size: 14, color: AppColors.text),
-                              SizedBox(width: 4),
-                              Icon(Icons.wifi, size: 14, color: AppColors.text),
-                              SizedBox(width: 4),
-                              Icon(Icons.battery_full, size: 14, color: AppColors.text),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Active Screen Content
-                    Expanded(child: child),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPill(String label, Color color, VoidCallback onTap, {IconData? icon}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, color: Colors.white, size: 14),
-              const SizedBox(width: 6),
             ],
-            Text(
-              label,
-              style: GoogleFonts.notoSans(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+            border: Border.all(color: const Color(0xFF1E293B), width: 2),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(34),
+            child: Scaffold(
+              backgroundColor: AppColors.bg,
+              body: SafeArea(
+                child: child,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

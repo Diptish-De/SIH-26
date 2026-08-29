@@ -42,9 +42,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
   String _selectedLanguage = 'en';
   final String _userName = 'Rama Devi';
   String _selectedPatient = 'Rama Devi';
-  bool _isOnline = true;
-  bool _hasError = false;
-  bool _hasPreviousCheck = true;
+  final bool _hasPreviousCheck = true;
 
   final AudioRecorderService _audioRecorder = AudioRecorderService();
 
@@ -56,38 +54,6 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
 
   void _navigateTo(String screen) {
     setState(() => _currentScreen = screen);
-  }
-
-  void _showReminderModal() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.notifications_active, color: AppColors.purple),
-            const SizedBox(width: 8),
-            Text('Daily Voice Reminder', style: AppTheme.theme.textTheme.titleMedium),
-          ],
-        ),
-        content: const Text(
-          'It is time for your weekly 3-minute voice check. Regular screenings help track vocal biomarker trends.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Later'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _navigateTo('intro');
-            },
-            child: const Text('Start Now'),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildScreenContent() {
@@ -235,10 +201,6 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       case 'processing':
         return AnalyzingVoiceScreen(
           onComplete: () async {
-            if (_hasError) {
-              _navigateTo('tryAgain');
-              return;
-            }
 
             final session = ScreeningSession(
               id: 'sc_${DateTime.now().millisecondsSinceEpoch}',
@@ -315,7 +277,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           userName: _userName,
           language: _selectedLanguage,
           hasPreviousCheck: _hasPreviousCheck,
-          hasError: _hasError,
+          hasError: false,
           onStartCheck: () => _navigateTo('intro'),
           onDoctorPatient: () => _navigateTo('doctorPatient'),
           onLanguageChanged: (lang) => setState(() => _selectedLanguage = lang),
@@ -326,21 +288,6 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
   @override
   Widget build(BuildContext context) {
     return FigmaPhoneFrame(
-      currentScreen: _currentScreen,
-      isOnline: _isOnline,
-      onToggleOnline: () => setState(() => _isOnline = !_isOnline),
-      onDoctorView: () => _navigateTo('doctorDash'),
-      onReminder: _showReminderModal,
-      onErrorState: () => setState(() => _hasError = !_hasError),
-      onEmptyState: () => setState(() => _hasPreviousCheck = !_hasPreviousCheck),
-      onRestart: () {
-        setState(() {
-          _activeTabIndex = 0;
-          _currentScreen = 'splash';
-          _hasError = false;
-          _hasPreviousCheck = true;
-        });
-      },
       child: _buildScreenContent(),
     );
   }
