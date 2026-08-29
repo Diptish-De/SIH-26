@@ -16,5 +16,12 @@ logs/
 .gradle/
 android/app/build/
 android/.gradle/
-release-output/
+# Flutter & Dart outputs
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/build/
+mobile/android/.gradle/
+mobile/android/app/build/
+
 
