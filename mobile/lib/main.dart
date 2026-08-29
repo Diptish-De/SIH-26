@@ -36,7 +36,8 @@ class MainNavigationController extends StatefulWidget {
 }
 
 class _MainNavigationControllerState extends State<MainNavigationController> {
-  String _currentScreen = 'home';
+  int _activeTabIndex = 0;
+  String _currentScreen = 'tabs'; // 'tabs', 'voiceIntro', 'instruction', 'recording', 'processing', 'result', 'doctorDash', 'doctorPatient'
   String _selectedLanguage = 'en';
   final String _userName = 'Friend';
   String _selectedPatient = 'Rama Devi';
@@ -90,25 +91,11 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
 
   Widget _buildScreenContent() {
     switch (_currentScreen) {
-      case 'home':
-        return HomeScreen(
-          userName: _userName,
-          language: _selectedLanguage,
-          hasPreviousCheck: _hasPreviousCheck,
-          hasError: _hasError,
-          onStartCheck: () => _navigateTo('voiceIntro'),
-          onHistory: () => _navigateTo('doctorDash'),
-          onHelp: () => _navigateTo('instruction'),
-          onCaregiver: () => _navigateTo('doctorPatient'),
-          onProfile: () => _navigateTo('doctorDash'),
-          onSettings: () => _navigateTo('home'),
-        );
-
       case 'voiceIntro':
         return VoiceIntroScreen(
           language: _selectedLanguage,
           onStart: () => _navigateTo('instruction'),
-          onBack: () => _navigateTo('home'),
+          onBack: () => _navigateTo('tabs'),
         );
 
       case 'instruction':
@@ -164,13 +151,16 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       case 'result':
         return ScreeningResultScreen(
           risk: ScreeningRisk.elevated,
-          onHome: () => _navigateTo('home'),
+          onHome: () {
+            setState(() => _activeTabIndex = 0);
+            _navigateTo('tabs');
+          },
           onDetails: () => _navigateTo('doctorPatient'),
         );
 
       case 'doctorDash':
         return DoctorDashboardScreen(
-          onBack: () => _navigateTo('home'),
+          onBack: () => _navigateTo('tabs'),
           onSelectPatient: (name) {
             setState(() => _selectedPatient = name);
             _navigateTo('doctorPatient');
@@ -180,19 +170,21 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       case 'doctorPatient':
         return DoctorPatientDetailScreen(
           patientName: _selectedPatient,
-          onBack: () => _navigateTo('doctorDash'),
+          onBack: () => _navigateTo('tabs'),
         );
 
+      case 'tabs':
       default:
-        return HomeScreen(
+        return MainTabScaffold(
+          activeIndex: _activeTabIndex,
+          onTabChange: (idx) => setState(() => _activeTabIndex = idx),
           userName: _userName,
           language: _selectedLanguage,
+          hasPreviousCheck: _hasPreviousCheck,
+          hasError: _hasError,
           onStartCheck: () => _navigateTo('voiceIntro'),
-          onHistory: () => _navigateTo('doctorDash'),
-          onHelp: () => _navigateTo('instruction'),
-          onCaregiver: () => _navigateTo('doctorPatient'),
-          onProfile: () => _navigateTo('doctorDash'),
-          onSettings: () => _navigateTo('home'),
+          onDoctorPatient: () => _navigateTo('doctorPatient'),
+          onLanguageChanged: (lang) => setState(() => _selectedLanguage = lang),
         );
     }
   }
@@ -209,7 +201,8 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       onEmptyState: () => setState(() => _hasPreviousCheck = !_hasPreviousCheck),
       onRestart: () {
         setState(() {
-          _currentScreen = 'home';
+          _activeTabIndex = 0;
+          _currentScreen = 'tabs';
           _hasError = false;
           _hasPreviousCheck = true;
         });
