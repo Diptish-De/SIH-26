@@ -239,7 +239,7 @@ class DoctorPatientDetailScreen extends StatelessWidget {
                             color: AppColors.primary,
                             barWidth: 3,
                             dotData: const FlDotData(show: true),
-                            belowBarData: BarAreaData(show: true, color: AppColors.primaryLight.withOpacity(0.5)),
+                            belowBarData: BarAreaData(show: true, color: AppColors.primaryLight.withValues(alpha: 0.5)),
                           ),
                         ],
                       ),

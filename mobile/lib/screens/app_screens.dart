@@ -237,6 +237,7 @@ class MainTabScaffold extends StatelessWidget {
           onHelp: () => onTabChange(2),
           onCaregiver: onDoctorPatient,
           onSettings: () => onTabChange(3),
+          onTrend: onDoctorPatient,
         );
         break;
     }
@@ -302,6 +303,7 @@ class HomeTab extends StatelessWidget {
   final VoidCallback onHelp;
   final VoidCallback onCaregiver;
   final VoidCallback onSettings;
+  final VoidCallback onTrend;
 
   const HomeTab({
     super.key,
@@ -314,6 +316,7 @@ class HomeTab extends StatelessWidget {
     required this.onHelp,
     required this.onCaregiver,
     required this.onSettings,
+    required this.onTrend,
   });
 
   @override
