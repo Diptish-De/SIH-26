@@ -36,10 +36,13 @@ class MainNavigationController extends StatefulWidget {
 }
 
 class _MainNavigationControllerState extends State<MainNavigationController> {
-  String _currentScreen = 'welcome';
-  String _selectedLanguage = 'hi';
-  String _userName = 'Rama Devi';
+  String _currentScreen = 'home';
+  String _selectedLanguage = 'en';
+  final String _userName = 'Friend';
   String _selectedPatient = 'Rama Devi';
+  bool _isOnline = true;
+  bool _hasError = false;
+  bool _hasPreviousCheck = true;
 
   final AudioRecorderService _audioRecorder = AudioRecorderService();
 
@@ -53,20 +56,52 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
     setState(() => _currentScreen = screen);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    switch (_currentScreen) {
-      case 'language':
-        return LanguageSelectScreen(
-          selectedLang: _selectedLanguage,
-          onSelect: (lang) => setState(() => _selectedLanguage = lang),
-          onContinue: () => _navigateTo('home'),
-        );
+  void _showReminderModal() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.notifications_active, color: AppColors.purple),
+            const SizedBox(width: 8),
+            Text('Daily Voice Reminder', style: AppTheme.theme.textTheme.titleMedium),
+          ],
+        ),
+        content: const Text(
+          'It is time for your weekly 3-minute voice check. Regular screenings help track vocal biomarker trends.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Later'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _navigateTo('voiceIntro');
+            },
+            child: const Text('Start Now'),
+          ),
+        ],
+      ),
+    );
+  }
 
-      case 'welcome':
-        return WelcomeScreen(
+  Widget _buildScreenContent() {
+    switch (_currentScreen) {
+      case 'home':
+        return HomeScreen(
+          userName: _userName,
           language: _selectedLanguage,
-          onStart: () => _navigateTo('voiceIntro'),
+          hasPreviousCheck: _hasPreviousCheck,
+          hasError: _hasError,
+          onStartCheck: () => _navigateTo('voiceIntro'),
+          onHistory: () => _navigateTo('doctorDash'),
+          onHelp: () => _navigateTo('instruction'),
+          onCaregiver: () => _navigateTo('doctorPatient'),
+          onProfile: () => _navigateTo('doctorDash'),
+          onSettings: () => _navigateTo('home'),
         );
 
       case 'voiceIntro':
@@ -80,7 +115,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
         return InstructionScreen(
           prompt: _selectedLanguage == 'hi'
               ? 'हमें अपने दिन के बारे में बताइए।'
-              : 'Tell us about your day.',
+              : 'Tell us about something you enjoy doing.',
           language: _selectedLanguage,
           onStartSpeaking: () => _navigateTo('recording'),
           onBack: () => _navigateTo('voiceIntro'),
@@ -95,7 +130,6 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
       case 'processing':
         return ProcessingScreen(
           onComplete: () async {
-            // Save mock session
             final session = ScreeningSession(
               id: 'sc_${DateTime.now().millisecondsSinceEpoch}',
               patientName: _userName,
@@ -149,19 +183,38 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           onBack: () => _navigateTo('doctorDash'),
         );
 
-      case 'home':
       default:
         return HomeScreen(
           userName: _userName,
           language: _selectedLanguage,
           onStartCheck: () => _navigateTo('voiceIntro'),
-          onDoctorDash: () => _navigateTo('doctorDash'),
           onHistory: () => _navigateTo('doctorDash'),
-          onCaregiver: () => _navigateTo('voiceIntro'),
-          onHealthWorker: () => _navigateTo('doctorDash'),
-          onHelp: () => _navigateTo('language'),
-          onSettings: () => _navigateTo('language'),
+          onHelp: () => _navigateTo('instruction'),
+          onCaregiver: () => _navigateTo('doctorPatient'),
+          onProfile: () => _navigateTo('doctorDash'),
+          onSettings: () => _navigateTo('home'),
         );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FigmaPhoneFrame(
+      currentScreen: _currentScreen,
+      isOnline: _isOnline,
+      onToggleOnline: () => setState(() => _isOnline = !_isOnline),
+      onDoctorView: () => _navigateTo('doctorDash'),
+      onReminder: _showReminderModal,
+      onErrorState: () => setState(() => _hasError = !_hasError),
+      onEmptyState: () => setState(() => _hasPreviousCheck = !_hasPreviousCheck),
+      onRestart: () {
+        setState(() {
+          _currentScreen = 'home';
+          _hasError = false;
+          _hasPreviousCheck = true;
+        });
+      },
+      child: _buildScreenContent(),
+    );
   }
 }
