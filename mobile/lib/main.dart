@@ -38,9 +38,9 @@ class MainNavigationController extends StatefulWidget {
 
 class _MainNavigationControllerState extends State<MainNavigationController> {
   int _activeTabIndex = 0;
-  String _currentScreen = 'splash'; // 'splash', 'tabs', 'task1', 'rec1', 'task2', 'rec2', 'task3', 'rec3', 'processing', 'result', 'doctorDash', 'doctorPatient'
+  String _currentScreen = 'splash';
   String _selectedLanguage = 'en';
-  final String _userName = 'Friend';
+  final String _userName = 'Rama Devi';
   String _selectedPatient = 'Rama Devi';
   bool _isOnline = true;
   bool _hasError = false;
@@ -81,7 +81,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _navigateTo('task1');
+              _navigateTo('intro');
             },
             child: const Text('Start Now'),
           ),
@@ -97,61 +97,152 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           onFinish: () => _navigateTo('tabs'),
         );
 
+      // ─── Voice Check Intro ─────────────────────────────────────────
+      case 'intro':
+        return VoiceCheckIntroScreen(
+          language: _selectedLanguage,
+          onBegin: () => _navigateTo('task1'),
+          onAssisted: () => _navigateTo('task1'),
+          onBack: () => _navigateTo('tabs'),
+        );
+
       // ─── Task 1 of 3: Picture Description ─────────────────────────
       case 'task1':
         return PictureDescriptionScreen(
           language: _selectedLanguage,
-          onStartSpeaking: () => _navigateTo('rec1'),
-          onBack: () => _navigateTo('tabs'),
+          onStartSpeaking: () => _navigateTo('ready1'),
+          onBack: () => _navigateTo('intro'),
           onClose: () => _navigateTo('tabs'),
         );
 
-      case 'rec1':
-        return RecordingScreen(
-          recorder: _audioRecorder,
+      case 'ready1':
+        return ReadyToSpeakScreen(
           stepIndex: 1,
-          onFinish: () => _navigateTo('task2'),
-        );
-
-      // ─── Task 2 of 3: Memory Recall ──────────────────────────────
-      case 'task2':
-        return MemoryRecallScreen(
-          language: _selectedLanguage,
-          onContinue: () => _navigateTo('rec2'),
+          onStartRecording: () => _navigateTo('rec1'),
           onBack: () => _navigateTo('task1'),
           onClose: () => _navigateTo('tabs'),
         );
 
-      case 'rec2':
-        return RecordingScreen(
+      case 'rec1':
+        return ActiveRecordingScreen(
           recorder: _audioRecorder,
-          stepIndex: 2,
-          onFinish: () => _navigateTo('task3'),
+          stepIndex: 1,
+          onFinish: () => _navigateTo('quality1'),
+          onBack: () => _navigateTo('ready1'),
+          onClose: () => _navigateTo('tabs'),
         );
 
-      // ─── Task 3 of 3: Conversational Prompt ───────────────────────
+      case 'quality1':
+        return VoiceQualityCheckScreen(
+          onContinue: () => _navigateTo('review1'),
+        );
+
+      case 'review1':
+        return RecordingReviewScreen(
+          onContinue: () => _navigateTo('task2_intro'),
+          onRecordAgain: () => _navigateTo('ready1'),
+        );
+
+      // ─── Task 2 of 3: Memory Recall ──────────────────────────────
+      case 'task2_intro':
+        return MemoryRecallIntroScreen(
+          language: _selectedLanguage,
+          onContinue: () => _navigateTo('task2_prompt'),
+          onBack: () => _navigateTo('review1'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'task2_prompt':
+        return MemoryRecallPromptScreen(
+          language: _selectedLanguage,
+          onStartSpeaking: () => _navigateTo('ready2'),
+          onListenAgain: () => _navigateTo('task2_intro'),
+          onBack: () => _navigateTo('task2_intro'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'ready2':
+        return ReadyToSpeakScreen(
+          stepIndex: 2,
+          onStartRecording: () => _navigateTo('rec2'),
+          onBack: () => _navigateTo('task2_prompt'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'rec2':
+        return ActiveRecordingScreen(
+          recorder: _audioRecorder,
+          stepIndex: 2,
+          onFinish: () => _navigateTo('quality2'),
+          onBack: () => _navigateTo('ready2'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'quality2':
+        return VoiceQualityCheckScreen(
+          onContinue: () => _navigateTo('review2'),
+        );
+
+      case 'review2':
+        return RecordingReviewScreen(
+          onContinue: () => _navigateTo('task3'),
+          onRecordAgain: () => _navigateTo('ready2'),
+        );
+
+      // ─── Task 3 of 3: Conversational Task ─────────────────────────
       case 'task3':
         return ConversationalTaskScreen(
           language: _selectedLanguage,
-          onStartSpeaking: () => _navigateTo('rec3'),
-          onBack: () => _navigateTo('task2'),
+          onStartSpeaking: () => _navigateTo('ready3'),
+          onBack: () => _navigateTo('review2'),
+          onClose: () => _navigateTo('tabs'),
+        );
+
+      case 'ready3':
+        return ReadyToSpeakScreen(
+          stepIndex: 3,
+          onStartRecording: () => _navigateTo('rec3'),
+          onBack: () => _navigateTo('task3'),
           onClose: () => _navigateTo('tabs'),
         );
 
       case 'rec3':
-        return RecordingScreen(
+        return ActiveRecordingScreen(
           recorder: _audioRecorder,
           stepIndex: 3,
-          onFinish: () => _navigateTo('processing'),
+          onFinish: () => _navigateTo('quality3'),
+          onBack: () => _navigateTo('ready3'),
+          onClose: () => _navigateTo('tabs'),
         );
 
-      // ─── Dual Engine ML Analysis ──────────────────────────────────
+      case 'quality3':
+        return VoiceQualityCheckScreen(
+          onContinue: () => _navigateTo('review3'),
+        );
+
+      case 'review3':
+        return RecordingReviewScreen(
+          onContinue: () => _navigateTo('completion'),
+          onRecordAgain: () => _navigateTo('ready3'),
+        );
+
+      // ─── Completion & ML Analysis ─────────────────────────────────
+      case 'completion':
+        return CompletionScreen(
+          onComplete: () => _navigateTo('processing'),
+        );
+
       case 'processing':
-        return ProcessingScreen(
+        return AnalyzingVoiceScreen(
           onComplete: () async {
+            if (_hasError) {
+              _navigateTo('tryAgain');
+              return;
+            }
+
             final session = ScreeningSession(
               id: 'sc_${DateTime.now().millisecondsSinceEpoch}',
-              patientName: _userName == 'Friend' ? 'Rama Devi' : _userName,
+              patientName: _userName,
               patientAge: 72,
               language: _selectedLanguage,
               assistedMode: false,
@@ -181,18 +272,25 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           },
         );
 
-      // ─── Results Screen ───────────────────────────────────────────
+      // ─── Quality Error State: Try Again ───────────────────────────
+      case 'tryAgain':
+        return TryAgainErrorScreen(
+          onTryAgain: () => _navigateTo('intro'),
+          onHealthcare: () => _navigateTo('doctorPatient'),
+        );
+
+      // ─── Result Screen ────────────────────────────────────────────
       case 'result':
         return ScreeningResultScreen(
           risk: ScreeningRisk.elevated,
-          onHome: () {
+          onDone: () {
             setState(() => _activeTabIndex = 0);
             _navigateTo('tabs');
           },
           onDetails: () => _navigateTo('doctorPatient'),
         );
 
-      // ─── Doctor Dashboard & Progress Trends ───────────────────────
+      // ─── Doctor Clinical Dashboard & Longitudinal Trends ──────────
       case 'doctorDash':
         return DoctorDashboardScreen(
           onBack: () => _navigateTo('tabs'),
@@ -208,6 +306,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           onBack: () => _navigateTo('tabs'),
         );
 
+      // ─── Main Persistent Tabs ─────────────────────────────────────
       case 'tabs':
       default:
         return MainTabScaffold(
@@ -217,7 +316,7 @@ class _MainNavigationControllerState extends State<MainNavigationController> {
           language: _selectedLanguage,
           hasPreviousCheck: _hasPreviousCheck,
           hasError: _hasError,
-          onStartCheck: () => _navigateTo('task1'),
+          onStartCheck: () => _navigateTo('intro'),
           onDoctorPatient: () => _navigateTo('doctorPatient'),
           onLanguageChanged: (lang) => setState(() => _selectedLanguage = lang),
         );

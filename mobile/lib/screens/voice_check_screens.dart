@@ -63,7 +63,197 @@ class StepProgressHeader extends StatelessWidget {
   }
 }
 
-// ─── Task 1 of 3: Picture Description Screen ──────────────────────────────────
+// ─── Screen 1: Voice Check Intro ("Let's begin") ──────────────────────────────
+
+class VoiceCheckIntroScreen extends StatelessWidget {
+  final String language;
+  final VoidCallback onBegin;
+  final VoidCallback onAssisted;
+  final VoidCallback onBack;
+
+  const VoiceCheckIntroScreen({
+    super.key,
+    required this.language,
+    required this.onBegin,
+    required this.onAssisted,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const guideText = 'This is a short voice check. It takes about 3–5 minutes.';
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.text),
+          onPressed: onBack,
+        ),
+        title: Text(
+          'Voice Check',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close, color: AppColors.text),
+            onPressed: onBack,
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Column(
+            children: [
+              const Spacer(),
+
+              Text(
+                'Let\'s begin',
+                style: GoogleFonts.outfit(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                guideText,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.notoSans(
+                  fontSize: 14,
+                  color: AppColors.textSub,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // 3 Steps Grid (01 Listen, 02 Speak, 03 Finish)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStepCard('01', 'Listen'),
+                  const SizedBox(width: 14),
+                  _buildStepCard('02', 'Speak'),
+                  const SizedBox(width: 14),
+                  _buildStepCard('03', 'Finish'),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Listen Button
+              InkWell(
+                onTap: () => TtsService().speak(
+                  'Let\'s begin. This is a short voice check. It takes about 3 to 5 minutes.',
+                  language,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.volume_up, size: 16, color: AppColors.primaryDark),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Listen',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Primary Action: Begin Voice Check
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: onBegin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Begin Voice Check',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Secondary Action: Someone is helping me
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton(
+                  onPressed: onAssisted,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Someone is helping me',
+                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepCard(String number, String label) {
+    return Container(
+      width: 80,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Text(
+            number,
+            style: GoogleFonts.outfit(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryDark,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.notoSans(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primaryDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Task 1 of 3: Picture Description ("What do you see?") ────────────────────
 
 class PictureDescriptionScreen extends StatelessWidget {
   final String language;
@@ -139,12 +329,12 @@ class PictureDescriptionScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    // Illustrated Picture Card (House, Sun, Tree, Bicycle)
+                    // Countryside Illustrated Scene Card
                     Container(
                       width: double.infinity,
                       height: 220,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE0F2FE), // Sky blue
+                        color: const Color(0xFFE0F2FE),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(color: AppColors.border),
                         boxShadow: [
@@ -172,7 +362,7 @@ class PictureDescriptionScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: onStartSpeaking,
                   style: ElevatedButton.styleFrom(
@@ -193,7 +383,7 @@ class PictureDescriptionScreen extends StatelessWidget {
   }
 }
 
-// Custom Painter for Countryside Illustration matching Figma
+// Custom Painter for Countryside Scene
 class CountrysideScenePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -230,11 +420,8 @@ class CountrysideScenePainter extends CustomPainter {
     canvas.drawArc(Rect.fromLTWH(w * 0.48, h * 0.18, 12, 8), pi, pi, false, birdPaint);
 
     // 4. Green Ground
-    final groundPaint = Paint()..color = const Color(0xFF86EFAC); // Grass green
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(0, h * 0.62, w, h * 0.38), const Radius.circular(0)),
-      groundPaint,
-    );
+    final groundPaint = Paint()..color = const Color(0xFF86EFAC);
+    canvas.drawRect(Rect.fromLTWH(0, h * 0.62, w, h * 0.38), groundPaint);
 
     // 5. House (Orange Roof & Body)
     final houseWall = Paint()..color = const Color(0xFFFED7AA);
@@ -280,15 +467,15 @@ class CountrysideScenePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ─── Task 2 of 3: Memory Recall Screen ────────────────────────────────────────
+// ─── Task 2A: Memory Recall ("Listen carefully") ──────────────────────────────
 
-class MemoryRecallScreen extends StatelessWidget {
+class MemoryRecallIntroScreen extends StatelessWidget {
   final String language;
   final VoidCallback onContinue;
   final VoidCallback onBack;
   final VoidCallback onClose;
 
-  const MemoryRecallScreen({
+  const MemoryRecallIntroScreen({
     super.key,
     required this.language,
     required this.onContinue,
@@ -374,32 +561,17 @@ class MemoryRecallScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    ElevatedButton.icon(
-                      onPressed: () => TtsService().speak(
-                        'Cow, River, Book, House, Flower. Try to remember these words.',
-                        language,
-                      ),
-                      icon: const Icon(Icons.replay, size: 16, color: AppColors.primaryDark),
-                      label: const Text('Listen Again', style: TextStyle(color: AppColors.primaryDark, fontSize: 13)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryLight,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
 
-            // Continue Button
+            // Continue Action
             Padding(
               padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: onContinue,
                   style: ElevatedButton.styleFrom(
@@ -420,7 +592,123 @@ class MemoryRecallScreen extends StatelessWidget {
   }
 }
 
-// ─── Task 3 of 3: Conversational Prompt Screen ────────────────────────────────
+// ─── Task 2B: Memory Recall Prompt ("What do you remember?") ──────────────────
+
+class MemoryRecallPromptScreen extends StatelessWidget {
+  final String language;
+  final VoidCallback onStartSpeaking;
+  final VoidCallback onListenAgain;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
+
+  const MemoryRecallPromptScreen({
+    super.key,
+    required this.language,
+    required this.onStartSpeaking,
+    required this.onListenAgain,
+    required this.onBack,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            StepProgressHeader(currentStep: 2, onBack: onBack, onClose: onClose),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    // Info Icon Box (!)
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.info_outline_rounded,
+                          size: 38,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Text(
+                      'What do you remember?',
+                      style: GoogleFonts.outfit(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Tell us the words you remember.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Actions
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: onStartSpeaking,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        'Start Speaking',
+                        style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: onListenAgain,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        'Listen Again',
+                        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Task 3: Conversational Prompt ("One more") ───────────────────────────────
 
 class ConversationalTaskScreen extends StatelessWidget {
   final String language;
@@ -452,7 +740,7 @@ class ConversationalTaskScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    // Chat message icon box
+                    // Chat Message Icon Box
                     Container(
                       width: 80,
                       height: 80,
@@ -507,7 +795,7 @@ class ConversationalTaskScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    // Listen button
+                    // Listen Pill
                     InkWell(
                       onTap: () => TtsService().speak(prompt, language),
                       borderRadius: BorderRadius.circular(16),
@@ -544,7 +832,7 @@ class ConversationalTaskScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: onStartSpeaking,
                   style: ElevatedButton.styleFrom(
@@ -565,25 +853,119 @@ class ConversationalTaskScreen extends StatelessWidget {
   }
 }
 
-// ─── Recording Screen with Live Oscillating Waveforms ─────────────────────────
+// ─── Step: Tap to Speak (Ready State) ─────────────────────────────────────────
 
-class RecordingScreen extends StatefulWidget {
+class ReadyToSpeakScreen extends StatelessWidget {
+  final int stepIndex; // 1, 2, 3
+  final VoidCallback onStartRecording;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
+
+  const ReadyToSpeakScreen({
+    super.key,
+    required this.stepIndex,
+    required this.onStartRecording,
+    required this.onBack,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            StepProgressHeader(currentStep: stepIndex, onBack: onBack, onClose: onClose),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Teal Mic Button
+                  GestureDetector(
+                    onTap: onStartRecording,
+                    child: Container(
+                      width: 130,
+                      height: 130,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 28,
+                            spreadRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.mic,
+                        color: Colors.white,
+                        size: 56,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  Text(
+                    'Tap to speak',
+                    style: GoogleFonts.outfit(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Subtle Waveform Dots Representation
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(24, (index) {
+                      final h = (index % 3 == 0) ? 10.0 : ((index % 2 == 0) ? 6.0 : 4.0);
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        width: 3,
+                        height: h,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryDark.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Step: Active Recording Screen with Glowing Pulse & Waveforms ──────────────
+
+class ActiveRecordingScreen extends StatefulWidget {
   final AudioRecorderService recorder;
   final int stepIndex; // 1, 2, 3
   final VoidCallback onFinish;
+  final VoidCallback onBack;
+  final VoidCallback onClose;
 
-  const RecordingScreen({
+  const ActiveRecordingScreen({
     super.key,
     required this.recorder,
     required this.stepIndex,
     required this.onFinish,
+    required this.onBack,
+    required this.onClose,
   });
 
   @override
-  State<RecordingScreen> createState() => _RecordingScreenState();
+  State<ActiveRecordingScreen> createState() => _ActiveRecordingScreenState();
 }
 
-class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProviderStateMixin {
+class _ActiveRecordingScreenState extends State<ActiveRecordingScreen> with SingleTickerProviderStateMixin {
   int _seconds = 0;
   Timer? _timer;
   late AnimationController _waveAnim;
@@ -593,7 +975,7 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
     super.initState();
     _waveAnim = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 900),
     )..repeat();
     _startRecording();
   }
@@ -620,124 +1002,168 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Task ${widget.stepIndex} of 3 Recording',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.text),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
-
-            // Pulsating Mic Button
-            GestureDetector(
-              onTap: () {
-                if (widget.recorder.isPaused) {
-                  widget.recorder.resume();
-                  _waveAnim.repeat();
-                } else {
-                  widget.recorder.pause();
-                  _waveAnim.stop();
-                }
-                setState(() {});
-              },
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.danger,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.danger.withValues(alpha: 0.35),
-                      blurRadius: 28,
-                      spreadRadius: 6,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  widget.recorder.isPaused ? Icons.play_arrow : Icons.mic,
-                  color: Colors.white,
-                  size: 52,
-                ),
-              ),
+            StepProgressHeader(
+              currentStep: widget.stepIndex,
+              onBack: widget.onBack,
+              onClose: widget.onClose,
             ),
-
-            const SizedBox(height: 28),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
-                  const SizedBox(width: 8),
+                  // Red Pulsating Pause/Record Button with Glowing Shadow
+                  GestureDetector(
+                    onTap: () {
+                      if (widget.recorder.isPaused) {
+                        widget.recorder.resume();
+                        _waveAnim.repeat();
+                      } else {
+                        widget.recorder.pause();
+                        _waveAnim.stop();
+                      }
+                      setState(() {});
+                    },
+                    child: Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFDC2626), // Solid red
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFDC2626).withValues(alpha: 0.35),
+                            blurRadius: 36,
+                            spreadRadius: 8,
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFFDC2626).withValues(alpha: 0.15),
+                            blurRadius: 56,
+                            spreadRadius: 16,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        widget.recorder.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                        color: Colors.white,
+                        size: 60,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Red status: "— recording"
                   Text(
-                    widget.recorder.isPaused ? 'Paused' : 'Recording Voice',
-                    style: GoogleFonts.notoSans(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.red.shade900),
+                    widget.recorder.isPaused ? '— paused' : '— recording',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFDC2626),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Big Timer (00:04)
+                  Text(
+                    fmtTime,
+                    style: GoogleFonts.outfit(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Speak naturally…',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 13,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Live Dynamic Oscillating Waveform Bars
+                  AnimatedBuilder(
+                    animation: _waveAnim,
+                    builder: (context, child) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(24, (index) {
+                          final phase = index * (pi / 5.5);
+                          final sinVal = widget.recorder.isPaused
+                              ? 0.0
+                              : sin(_waveAnim.value * 2 * pi + phase).abs();
+                          final height = 6.0 + (sinVal * 32.0);
+
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                            width: 3.5,
+                            height: height,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryDark.withValues(alpha: 0.7 + (sinVal * 0.3)),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          );
+                        }),
+                      );
+                    },
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              fmtTime,
-              style: GoogleFonts.outfit(fontSize: 44, fontWeight: FontWeight.bold, color: AppColors.text),
-            ),
-            Text('Speak naturally… (स्वाभाविक रूप से बोलें)', style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.muted)),
 
-            const SizedBox(height: 32),
-
-            // Live Animated Sound Waves
-            AnimatedBuilder(
-              animation: _waveAnim,
-              builder: (context, child) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(24, (index) {
-                    final phase = index * (pi / 6.0);
-                    final sinVal = widget.recorder.isPaused
-                        ? 0.0
-                        : sin(_waveAnim.value * 2 * pi + phase).abs();
-                    final height = 6.0 + (sinVal * 34.0);
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      width: 4,
-                      height: height,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.6 + (sinVal * 0.4)),
-                        borderRadius: BorderRadius.circular(3),
+            // Bottom Buttons: Finish Recording & Pause
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await widget.recorder.stop();
+                        widget.onFinish();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                    );
-                  }),
-                );
-              },
-            ),
-
-            const Spacer(),
-
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await widget.recorder.stop();
-                  widget.onFinish();
-                },
-                child: const Text('Finish Recording'),
+                      child: Text(
+                        'Finish Recording',
+                        style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        if (widget.recorder.isPaused) {
+                          widget.recorder.resume();
+                          _waveAnim.repeat();
+                        } else {
+                          widget.recorder.pause();
+                          _waveAnim.stop();
+                        }
+                        setState(() {});
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        widget.recorder.isPaused ? 'Resume' : 'Pause',
+                        style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -747,18 +1173,392 @@ class _RecordingScreenState extends State<RecordingScreen> with SingleTickerProv
   }
 }
 
-// ─── Processing Animation Screen ──────────────────────────────────────────────
+// ─── Step: Voice Quality Check ("Recording looks good") ────────────────────────
 
-class ProcessingScreen extends StatefulWidget {
-  final VoidCallback onComplete;
+class VoiceQualityCheckScreen extends StatelessWidget {
+  final VoidCallback onContinue;
 
-  const ProcessingScreen({super.key, required this.onComplete});
+  const VoiceQualityCheckScreen({super.key, required this.onContinue});
 
   @override
-  State<ProcessingScreen> createState() => _ProcessingScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const Spacer(),
+
+              // Light Green Circle with Dark Green Checkmark
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDCFCE7), // Light green #DCFCE7
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 48,
+                    color: Color(0xFF16A34A), // Forest green
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Green Badge: Voice Quality
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Voice Quality',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF16A34A),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                'Recording looks good',
+                style: GoogleFonts.outfit(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Ready to continue.',
+                style: GoogleFonts.notoSans(
+                  fontSize: 14,
+                  color: AppColors.muted,
+                ),
+              ),
+
+              const Spacer(),
+
+              // Continue Button
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: onContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _ProcessingScreenState extends State<ProcessingScreen> {
+// ─── Step: Recording Review ("Your recording is ready") ────────────────────────
+
+class RecordingReviewScreen extends StatefulWidget {
+  final VoidCallback onContinue;
+  final VoidCallback onRecordAgain;
+
+  const RecordingReviewScreen({
+    super.key,
+    required this.onContinue,
+    required this.onRecordAgain,
+  });
+
+  @override
+  State<RecordingReviewScreen> createState() => _RecordingReviewScreenState();
+}
+
+class _RecordingReviewScreenState extends State<RecordingReviewScreen> {
+  bool _isPlaying = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const Spacer(),
+
+              // Light Green Circle with Checkmark
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDCFCE7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 48,
+                    color: Color(0xFF16A34A),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'Your recording is ready',
+                style: GoogleFonts.outfit(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Listen before you continue',
+                style: GoogleFonts.notoSans(
+                  fontSize: 14,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Audio Playback Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Play / Pause Circle
+                    GestureDetector(
+                      onTap: () => setState(() => _isPlaying = !_isPlaying),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+
+                    // Static/Animated Waveform Track
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(20, (index) {
+                          final h = (index % 4 == 0) ? 14.0 : ((index % 2 == 0) ? 8.0 : 4.0);
+                          return Container(
+                            width: 3,
+                            height: h,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Duration Timestamp (0:27)
+                    Text(
+                      '0:27',
+                      style: GoogleFonts.notoSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Actions: Continue & Record Again
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: widget.onContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton(
+                  onPressed: widget.onRecordAgain,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Record Again',
+                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Step: Completion Screen ("You're done!") ──────────────────────────────────
+
+class CompletionScreen extends StatefulWidget {
+  final VoidCallback onComplete;
+
+  const CompletionScreen({super.key, required this.onComplete});
+
+  @override
+  State<CompletionScreen> createState() => _CompletionScreenState();
+}
+
+class _CompletionScreenState extends State<CompletionScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1400), widget.onComplete);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFDCFCE7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.check_rounded,
+                    size: 48,
+                    color: Color(0xFF16A34A),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'You\'re done!',
+                style: GoogleFonts.outfit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Thank you. We\'re checking your voice now.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.notoSans(
+                  fontSize: 14,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Preparing analysis…',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 13,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ],
+              ),
+
+              const Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Step: ML Processing Screen ("Analyzing your voice…") ──────────────────────
+
+class AnalyzingVoiceScreen extends StatefulWidget {
+  final VoidCallback onComplete;
+
+  const AnalyzingVoiceScreen({super.key, required this.onComplete});
+
+  @override
+  State<AnalyzingVoiceScreen> createState() => _AnalyzingVoiceScreenState();
+}
+
+class _AnalyzingVoiceScreenState extends State<AnalyzingVoiceScreen> {
   double _progress = 0.0;
 
   @override
@@ -781,62 +1581,286 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(28),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(28.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+
+              // Light Cyan Wave Icon Box (~~~)
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(26),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.waves_rounded,
+                    size: 44,
+                    color: AppColors.primaryDark,
+                  ),
+                ),
               ),
-              child: const Icon(Icons.auto_awesome, size: 52, color: AppColors.primaryDark),
-            ),
-            const SizedBox(height: 28),
-            Text(
-              'Analyzing your voice…',
-              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.text),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Dual-engine Classical & Quantum ML analysis',
-              style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.muted),
-            ),
-            const SizedBox(height: 32),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: _progress.clamp(0.0, 1.0),
-                minHeight: 10,
-                backgroundColor: AppColors.border,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              const SizedBox(height: 28),
+
+              Text(
+                'Analyzing your voice…',
+                style: GoogleFonts.outfit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${(_progress * 100).clamp(0, 100).toInt()}%',
-              style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                'This may take a moment.',
+                style: GoogleFonts.notoSans(
+                  fontSize: 13,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 36),
+
+              // Linear Progress Indicator
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: _progress.clamp(0.0, 1.0),
+                  minHeight: 10,
+                  backgroundColor: AppColors.border,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Processing speech features…',
+                style: GoogleFonts.notoSans(
+                  fontSize: 12,
+                  color: AppColors.muted,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Privacy Pill
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_outline, size: 16, color: AppColors.primaryDark),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Your information is processed securely.',
+                      style: GoogleFonts.notoSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─── Screening Result Screen ──────────────────────────────────────────────────
+// ─── Result: Quality Error / Uncertain Screen ("Try Again") ────────────────────
+
+class TryAgainErrorScreen extends StatelessWidget {
+  final VoidCallback onTryAgain;
+  final VoidCallback onHealthcare;
+
+  const TryAgainErrorScreen({
+    super.key,
+    required this.onTryAgain,
+    required this.onHealthcare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const Spacer(),
+
+              // Light Amber Warning Icon Box
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF3C7), // Light amber #FEF3C7
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.warning_rounded,
+                    size: 46,
+                    color: Color(0xFFD97706), // Amber warning
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Yellow Badge: We need a clearer recording
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'We need a clearer recording',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF92400E),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                'Try Again',
+                style: GoogleFonts.outfit(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.text,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Explanation Card
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'We couldn\'t confidently analyze this recording.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Divider(height: 1, color: AppColors.border),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Possible reasons:',
+                      style: GoogleFonts.notoSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildReasonItem('Background noise'),
+                    _buildReasonItem('Recording too short'),
+                    _buildReasonItem('Poor audio quality'),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Actions: Try Again & Talk to a Healthcare Professional
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: onTryAgain,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Try Again',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton(
+                  onPressed: onHealthcare,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Talk to a Healthcare Professional',
+                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReasonItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Container(width: 5, height: 5, decoration: const BoxDecoration(color: AppColors.muted, shape: BoxShape.circle)),
+          const SizedBox(width: 8),
+          Text(text, style: GoogleFonts.notoSans(fontSize: 12, color: AppColors.textSub)),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Result: Final Outcome Screen (Low Risk / Elevated Risk) ───────────────────
 
 class ScreeningResultScreen extends StatelessWidget {
   final ScreeningRisk risk;
-  final VoidCallback onHome;
+  final VoidCallback onDone;
   final VoidCallback onDetails;
 
   const ScreeningResultScreen({
     super.key,
     required this.risk,
-    required this.onHome,
+    required this.onDone,
     required this.onDetails,
   });
 
@@ -850,50 +1874,63 @@ class ScreeningResultScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
+
               Container(
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: isElevated ? AppColors.warningBg : AppColors.successBg,
+                  color: isElevated ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  isElevated ? Icons.info_outline : Icons.check_circle_outline,
-                  size: 48,
-                  color: isElevated ? AppColors.warning : AppColors.success,
+                child: Center(
+                  child: Icon(
+                    isElevated ? Icons.info_outline_rounded : Icons.check_rounded,
+                    size: 48,
+                    color: isElevated ? const Color(0xFFD97706) : const Color(0xFF16A34A),
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isElevated ? AppColors.warningBg : AppColors.successBg,
+                  color: isElevated ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   isElevated ? 'Further Evaluation Recommended' : 'No Immediate Concern Detected',
-                  style: TextStyle(
-                    color: isElevated ? AppColors.warning : AppColors.success,
+                  style: GoogleFonts.outfit(
+                    color: isElevated ? const Color(0xFF92400E) : const Color(0xFF16A34A),
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
+
               Text(
                 'Voice Check Complete',
-                style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.text),
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.text),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
               Container(
-                padding: const EdgeInsets.all(18),
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Text(
                   isElevated
@@ -903,32 +1940,47 @@ class ScreeningResultScreen extends StatelessWidget {
                   style: GoogleFonts.notoSans(fontSize: 13, color: AppColors.textSub, height: 1.5),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Text(
                 'This screening does not replace a medical diagnosis.',
                 style: GoogleFonts.notoSans(fontSize: 11, color: AppColors.muted),
               ),
+
               const Spacer(),
+
               SizedBox(
                 width: double.infinity,
+                height: 52,
                 child: ElevatedButton(
-                  onPressed: onHome,
-                  child: const Text('Done'),
+                  onPressed: onDone,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
+                height: 52,
                 child: OutlinedButton(
                   onPressed: onDetails,
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: AppColors.border),
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
-                  child: const Text('View Screening Details', style: TextStyle(color: AppColors.textSub)),
+                  child: Text(
+                    'View Screening Details',
+                    style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
