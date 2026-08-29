@@ -7,6 +7,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build & Release Android APK
@@ -16,17 +19,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js (v22 LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
-      - name: Setup Java JDK 17
+      - name: Setup Java JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -37,9 +40,9 @@ jobs:
       - name: Build Web Assets (Vite)
         run: npm run build
 
-      - name: Setup Capacitor Android
+      - name: Sync Capacitor Android
         run: |
-          npx cap sync android || (npx cap add android && npx cap sync android)
+          npx cap sync android
 
       - name: Build Android APK with Gradle
         working-directory: ./android
@@ -50,7 +53,7 @@ jobs:
       - name: Prepare SwarSanket.apk artifact
         run: |
           mkdir -p release-output
-          # Locate built apk and copy as SwarSanket.apk
+          # Locate built debug apk and copy as SwarSanket.apk
           find android/app/build/outputs/apk/ -name "*.apk" -exec cp {} release-output/SwarSanket.apk \;
           ls -la release-output/
 
