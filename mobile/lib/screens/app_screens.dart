@@ -572,37 +572,6 @@ class HomeTab extends StatelessWidget {
               _buildQuickAction('Caregiver', Icons.people_outline, onCaregiver),
             ],
           ),
-          const SizedBox(height: 14),
-
-          // In-App APK Download Banner
-          InkWell(
-            onTap: () => showDialog(context: context, builder: (_) => const ApkDownloadDialog()),
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.android, color: Colors.cyanAccent, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Download Android APK (QR Scan)',
-                      style: GoogleFonts.outfit(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.arrow_forward_ios, color: Colors.white60, size: 12),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
