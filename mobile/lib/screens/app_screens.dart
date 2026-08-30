@@ -436,6 +436,26 @@ class HomeTab extends StatelessWidget {
                       ),
                   ],
                 ),
+                if (hasPreviousCheck) ...[
+                  const Divider(height: 24, color: AppColors.border),
+                  InkWell(
+                    onTap: onTrend,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Center(
+                        child: Text(
+                          'View Progress Trend →',
+                          style: GoogleFonts.outfit(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF0284C7),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

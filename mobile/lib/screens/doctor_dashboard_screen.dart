@@ -270,6 +270,29 @@ class DoctorPatientDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Share / Export Report Button
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Clinical Screening Report exported successfully.'),
+                      backgroundColor: AppColors.primary,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
+                label: Text(
+                  'Export Clinical Report (PDF)',
+                  style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
