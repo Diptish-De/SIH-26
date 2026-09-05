@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,28 +20,37 @@ class AudioRecorderService {
 
   Future<bool> start() async {
     try {
-      if (await _recorder.hasPermission()) {
-        final dir = await getTemporaryDirectory();
-        final path = '${dir.path}/swarsanket_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        _currentFilePath = path;
+      final hasPermission = await _recorder.hasPermission();
+      debugPrint('SwarSanket microphone permission: $hasPermission');
 
-        await _recorder.start(
-          const RecordConfig(
-            encoder: AudioEncoder.aacLc,
-            bitRate: 128000,
-            sampleRate: 44100,
-          ),
-          path: path,
-        );
-
-        _isRecording = true;
-        _isPaused = false;
-        return true;
+      if (!hasPermission) {
+        debugPrint('SwarSanket: microphone permission denied');
+        return false;
       }
-    } catch (e) {
-      // Fallback
+
+      final dir = await getTemporaryDirectory();
+      final path = '${dir.path}/swarsanket_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      _currentFilePath = path;
+      debugPrint('SwarSanket recording path: $path');
+
+      await _recorder.start(
+        const RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          bitRate: 128000,
+          sampleRate: 44100,
+        ),
+        path: path,
+      );
+
+      _isRecording = true;
+      _isPaused = false;
+      debugPrint('SwarSanket: recording started successfully');
+      return true;
+    } catch (e, stackTrace) {
+      debugPrint('SwarSanket recording ERROR: $e');
+      debugPrint('$stackTrace');
+      return false;
     }
-    return false;
   }
 
   Future<void> pause() async {
@@ -62,8 +72,11 @@ class AudioRecorderService {
       final path = await _recorder.stop();
       _isRecording = false;
       _isPaused = false;
-      return path ?? _currentFilePath;
+      final resolvedPath = path ?? _currentFilePath;
+      debugPrint('SwarSanket: recording stopped. Output file path: $resolvedPath');
+      return resolvedPath;
     }
+    debugPrint('SwarSanket: stop called but not currently recording');
     return null;
   }
 
@@ -85,3 +98,4 @@ class AudioRecorderService {
     _player.dispose();
   }
 }
+

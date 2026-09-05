@@ -20,7 +20,7 @@ import {
   getDB, saveScreeningSession, getAllScreenings, getOfflineQueue,
   markQueueItemSynced, seedInitialDemoData, addDoctorNote, getDoctorNotes
 } from "./services/db";
-import { VoiceRecorder, AudioRecordingResult } from "./services/audioRecorder";
+import { VoiceRecorder, AudioRecordingResult, getLastRecordedAudioBlob, uploadAudioToBackend } from "./services/audioRecorder";
 import { speakText, stopSpeech, isSpeaking } from "./services/tts";
 import { generateAndDownloadReport } from "./services/report";
 import { ApkDownloadModal, APK_DOWNLOAD_URL, GITHUB_RELEASES_URL } from "./components/ApkDownloadModal";
@@ -664,6 +664,8 @@ export default function App() {
   const [vqState, setVqState] = useState<VoiceQualityGrade>("good");
   const [selectedPatient, setSelectedPatient] = useState<string>("Rama Devi");
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string>("");
+  const [currentAudioBlob, setCurrentAudioBlob] = useState<Blob | null>(null);
+  const audioBlobRef = useRef<Blob | null>(null);
 
   // Recorder state
   const recorderRef = useRef<VoiceRecorder>(new VoiceRecorder());
@@ -711,19 +713,59 @@ export default function App() {
   const handleFinishRecording = async (nextScreen: Screen = "recordingReview") => {
     setIsRecording(false);
     setIsPaused(false);
-    const res: AudioRecordingResult = await recorderRef.current.stop();
-    setCurrentAudioUrl(res.audioUrl);
-    setVqState(res.quality);
+    try {
+      const res: AudioRecordingResult = await recorderRef.current.stop();
+      setCurrentAudioUrl(res.audioUrl);
+      setCurrentAudioBlob(res.blob);
+      audioBlobRef.current = res.blob;
+      setVqState(res.quality);
 
-    if (isOffline) {
-      navigate("offlineSaved");
-      return;
-    }
+      // Log the exact recording details: MIME type, file size in bytes, duration, and object URL
+      console.log("[SwarSanket] Real audio recording captured successfully:", {
+        mimeType: res.blob.type,
+        sizeBytes: res.blob.size,
+        duration: `${res.durationSeconds}s`,
+        objectUrl: res.audioUrl,
+      });
 
-    if (res.quality === "poor" || res.quality === "low") {
-      navigate("voiceQuality");
-    } else {
-      navigate(nextScreen);
+      // Retain globally so it can be accessed anywhere (backend upload, debugging, etc.)
+      if (typeof window !== "undefined") {
+        (window as unknown as {
+          __lastRecordedVoiceBlob?: Blob;
+          __lastAudioRecording?: AudioRecordingResult;
+          getAudioBlobForUpload?: () => Blob | null;
+        }).__lastRecordedVoiceBlob = res.blob;
+        (window as unknown as {
+          __lastRecordedVoiceBlob?: Blob;
+          __lastAudioRecording?: AudioRecordingResult;
+          getAudioBlobForUpload?: () => Blob | null;
+        }).__lastAudioRecording = res;
+        (window as unknown as {
+          __lastRecordedVoiceBlob?: Blob;
+          __lastAudioRecording?: AudioRecordingResult;
+          getAudioBlobForUpload?: () => Blob | null;
+        }).getAudioBlobForUpload = () => audioBlobRef.current;
+      }
+
+      // Connect to FastAPI backend at http://127.0.0.1:8001/api/upload-audio
+      try {
+        await uploadAudioToBackend(res.blob, "voice_check.webm");
+      } catch (uploadErr) {
+        console.error("[SwarSanket] Backend upload failed:", uploadErr);
+      }
+
+      if (isOffline) {
+        navigate("offlineSaved");
+        return;
+      }
+
+      if (res.quality === "poor" || res.quality === "low") {
+        navigate("voiceQuality");
+      } else {
+        navigate(nextScreen);
+      }
+    } catch (err) {
+      console.error("[SwarSanket] handleFinishRecording error:", err);
     }
   };
 
@@ -768,7 +810,11 @@ export default function App() {
       synced: !isOffline,
     };
 
-    await saveScreeningSession(newSession);
+    const audioBlobs = audioBlobRef.current
+      ? [{ taskId: recordingContext, blob: audioBlobRef.current, durationSeconds: 24 }]
+      : undefined;
+
+    await saveScreeningSession(newSession, audioBlobs);
     const updated = await getAllScreenings();
     setScreeningsList(updated);
     setLastResult(risk);
