@@ -199,6 +199,10 @@ export class VoiceRecorder {
   }
 }
 
+export const API_BASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL) ||
+  "http://127.0.0.1:8001";
+
 export interface BackendUploadResponse {
   success: boolean;
   filename: string;
@@ -207,12 +211,57 @@ export interface BackendUploadResponse {
   saved_path: string;
 }
 
+export interface ScreeningApiResponse {
+  success: boolean;
+  filename: string;
+  transcript: string;
+  detected_language: string;
+  word_count: number;
+  audio: {
+    duration_seconds: number;
+    speech_timeline_duration: number;
+    sample_rate: number;
+    rms_energy: number;
+    peak_amplitude: number;
+    silence_percentage: number;
+  };
+  live_features: {
+    CTP_noun_ratio: number;
+    CTP_verb_ratio: number;
+    CTP_adv_ratio: number;
+    CTP_Pronouns_ratio: number;
+    "CTP_noun to verb": number;
+    "CTP_Word Rate(-/s)": number;
+    CTP_unique_IU_efficiency: number;
+    "CTP_ keyword_TTR": number;
+  };
+  production_features: Record<string, {
+    raw_value: number | null;
+    imputed_value: number;
+    is_live_extracted: boolean;
+  }>;
+  imputation: {
+    live_feature_count: number;
+    imputed_feature_count: number;
+    total_feature_count: number;
+    imputation_note: string;
+  };
+  screening: {
+    predicted_class: 0 | 1;
+    probability: number;
+    probability_percent: number;
+    technical_confidence_percent: number;
+    status: string;
+    interpretation: string;
+  };
+}
+
 export async function uploadAudioToBackend(
   blob: Blob,
   filename = "voice_check.webm",
-  endpoint = "http://127.0.0.1:8001/api/upload-audio"
+  endpoint = `${API_BASE_URL}/api/upload-audio`
 ): Promise<BackendUploadResponse | null> {
-  console.log("[SwarSanket] Uploading real audio...");
+  console.log("[SwarSanket] Uploading audio recording to backend...");
 
   const formData = new FormData();
   formData.append("audio", blob, filename);
@@ -224,7 +273,7 @@ export async function uploadAudioToBackend(
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText = await response.text().catch(() => "");
       throw new Error(`Server returned HTTP ${response.status}: ${errorText}`);
     }
 
@@ -236,5 +285,62 @@ export async function uploadAudioToBackend(
     return null;
   }
 }
+
+export async function analyzeAudioWithBackend(
+  blob: Blob,
+  filename = "voice_check.webm",
+  timeoutMs = 60000
+): Promise<ScreeningApiResponse> {
+  console.log("[SwarSanket] Sending real audio recording for ML screening analysis...", {
+    sizeBytes: blob.size,
+    type: blob.type,
+  });
+
+  const endpoint = `${API_BASE_URL}/api/analyze-audio`;
+  const formData = new FormData();
+  formData.append("audio", blob, filename);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      let detail = `Server returned HTTP ${response.status}`;
+      try {
+        const parsed = JSON.parse(errorText);
+        if (parsed.detail) detail = parsed.detail;
+      } catch {
+        // use fallback detail
+      }
+      throw new Error(detail);
+    }
+
+    const data: ScreeningApiResponse = await response.json();
+    console.log("[SwarSanket] Real screening analysis complete:", {
+      predictedClass: data.screening?.predicted_class,
+      probability: data.screening?.probability,
+      status: data.screening?.status,
+    });
+    return data;
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("Voice analysis timed out. Please check your network connection and try again.");
+    }
+    const message = err instanceof Error ? err.message : "Unable to reach screening backend.";
+    console.error("[SwarSanket] analyzeAudioWithBackend failed:", err);
+    throw new Error(message);
+  }
+}
+
 
 

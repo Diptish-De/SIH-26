@@ -1,0 +1,22 @@
+[
+  "CTP_DPI(ms)",
+  "CTP_RST(-/s)",
+  "CTP_EST",
+  "CTP_Hesitation Ratio",
+  "CTP_Energy Mean(Pa^2\u00b7s)",
+  "CTP_noun_ratio",
+  "CTP_verb_ratio",
+  "CTP_adv_ratio",
+  "CTP_Pronouns_ratio",
+  "CTP_noun to verb",
+  "CTP_Lexical Content Density",
+  "CTP_Word Rate(-/s)",
+  "CTP_Noun No Phrase Rate",
+  "CTP_Adv No Phrase Rate",
+  "CTP_Verb phrase type proportion",
+  "CTP_Prep phrase type proportion",
+  "CTP_num_unique_IU",
+  "CTP_unique_IU_efficiency",
+  "CTP_ keyword_TTR",
+  "CTP_Disfluency ratio"
+]

@@ -23,5 +23,11 @@ mobile/.flutter-plugins-dependencies
 mobile/build/
 mobile/android/.gradle/
 mobile/android/app/build/
-
-
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/

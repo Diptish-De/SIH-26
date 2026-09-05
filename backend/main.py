@@ -1,15 +1,22 @@
 import os
 import uuid
 import shutil
+import logging
 from pathlib import Path
 from datetime import datetime
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from screening_engine import run_screening_pipeline
+
+# Configure backend logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("swarsanket.backend")
+
 app = FastAPI(
-    title="SwarSanket Voice Backend",
-    description="FastAPI audio ingestion service for SwarSanket voice biomarker screening",
+    title="SwarSanket Voice Biomarker & Screening Backend",
+    description="FastAPI service for acoustic/linguistic feature extraction and validated XGBoost screening inference.",
     version="1.0.0",
 )
 
@@ -23,6 +30,8 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "http://localhost:8001",
+        "http://127.0.0.1:8001",
         "*",
     ],
     allow_credentials=True,
@@ -30,64 +39,73 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Uploads directory
+# Uploads storage directory
 BASE_DIR = Path(__file__).resolve().parent
 UPLOADS_DIR = BASE_DIR / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _generate_saved_path(original_filename: str, content_type: str = "") -> Path:
+    """Generates a unique timestamped file path for incoming audio recordings."""
+    ext = Path(original_filename or "").suffix.lower()
+    if not ext:
+        if "webm" in content_type:
+            ext = ".webm"
+        elif "mp4" in content_type or "m4a" in content_type:
+            ext = ".m4a"
+        elif "wav" in content_type:
+            ext = ".wav"
+        else:
+            ext = ".webm"
+
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    unique_id = uuid.uuid4().hex[:8]
+    unique_filename = f"swarsanket_{timestamp}_{unique_id}{ext}"
+    return UPLOADS_DIR / unique_filename
+
+
 @app.get("/api/health")
 def health_check():
+    """Health check endpoint confirming service status and active configuration."""
     return {
         "status": "ok",
-        "service": "SwarSanket Voice Backend",
+        "service": "SwarSanket Voice Biomarker Backend",
         "timestamp": datetime.utcnow().isoformat(),
+        "pipeline": "Faster-Whisper + spaCy + 20-Feature XGBoost Classifier",
     }
 
 
 @app.post("/api/upload-audio")
 async def upload_audio(audio: UploadFile = File(...)):
     """
-    Accepts a multipart audio file named 'audio', saves it to backend/uploads/
-    with a unique filename, and returns metadata including file path and size.
+    Ingests and saves an audio file to backend/uploads/ with a unique identifier.
     """
-    if not audio:
-        raise HTTPException(status_code=400, detail="No audio file provided.")
+    if not audio or not audio.filename:
+        raise HTTPException(status_code=400, detail="No valid audio file provided.")
+
+    saved_path = _generate_saved_path(audio.filename, audio.content_type or "")
 
     try:
-        # Determine extension from filename or content-type
-        original_name = audio.filename or "recording.webm"
-        ext = Path(original_name).suffix
-        if not ext:
-            if "webm" in (audio.content_type or ""):
-                ext = ".webm"
-            elif "mp4" in (audio.content_type or "") or "m4a" in (audio.content_type or ""):
-                ext = ".m4a"
-            elif "wav" in (audio.content_type or ""):
-                ext = ".wav"
-            else:
-                ext = ".webm"
-
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        unique_id = uuid.uuid4().hex[:8]
-        unique_filename = f"swarsanket_{timestamp}_{unique_id}{ext}"
-        saved_path = UPLOADS_DIR / unique_filename
-
-        # Write uploaded file to disk
         with open(saved_path, "wb") as buffer:
             shutil.copyfileobj(audio.file, buffer)
 
         size_bytes = os.path.getsize(saved_path)
+        if size_bytes == 0:
+            saved_path.unlink(missing_ok=True)
+            raise HTTPException(status_code=400, detail="Uploaded audio file is empty (0 bytes).")
 
         return {
             "success": True,
-            "filename": unique_filename,
+            "filename": saved_path.name,
             "content_type": audio.content_type,
             "size_bytes": size_bytes,
             "saved_path": str(saved_path),
         }
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save audio file: {str(e)}")
+        logger.error(f"Failed to save audio file: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error while saving audio recording.")
     finally:
         audio.file.close()
 
@@ -95,30 +113,57 @@ async def upload_audio(audio: UploadFile = File(...)):
 @app.post("/api/analyze-audio")
 async def analyze_audio(audio: UploadFile = File(...)):
     """
-    Accepts an uploaded audio file (WebM/Opus, WAV, etc.), decodes it into PCM audio,
-    and returns fundamental audio metrics (sample rate, channels, duration, samples,
-    RMS energy, peak amplitude, silence percentage).
+    Real SwarSanket screening endpoint:
+      1. Saves uploaded voice recording (WebM, M4A, WAV).
+      2. Runs Faster-Whisper ASR + word timestamps.
+      3. Performs spaCy linguistic POS and keyword extraction.
+      4. Assembles the exact 20-feature production contract vector (8 live, 12 median-imputed).
+      5. Executes frozen XGBoost screening inference.
+      6. Returns structured clinical screening signal metadata.
     """
-    if not audio:
-        raise HTTPException(status_code=400, detail="No audio file provided.")
+    if not audio or not audio.filename:
+        raise HTTPException(status_code=400, detail="No valid audio file provided.")
+
+    saved_path = _generate_saved_path(audio.filename, audio.content_type or "")
 
     try:
-        from audio_analyzer import decode_and_inspect_audio
+        with open(saved_path, "wb") as buffer:
+            shutil.copyfileobj(audio.file, buffer)
 
-        content = await audio.read()
-        metrics = decode_and_inspect_audio(content)
-        metrics["filename"] = audio.filename
-        metrics["content_type"] = audio.content_type
-        return metrics
+        size_bytes = os.path.getsize(saved_path)
+        if size_bytes == 0:
+            saved_path.unlink(missing_ok=True)
+            raise HTTPException(status_code=400, detail="Uploaded audio file is empty (0 bytes).")
+
+        # Run complete live screening engine pipeline
+        result = run_screening_pipeline(str(saved_path))
+
+        if not result.get("success"):
+            error_msg = result.get("error", "Unknown error")
+            logger.error(f"Screening engine processing error on '{saved_path.name}': {error_msg}")
+            raise HTTPException(
+                status_code=422,
+                detail="Unable to analyze audio recording. Please ensure the recording is clear and contains audible speech.",
+            )
+
+        # Attach saved filename metadata
+        result["filename"] = saved_path.name
+        return result
+
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Audio analysis failed: {str(e)}")
+        logger.error(f"Unhandled error during audio analysis of '{saved_path.name}': {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing the voice screening. Please try again.",
+        )
     finally:
         audio.file.close()
 
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    # Default to port 8001 to align with frontend audioRecorder configuration
+    port = int(os.environ.get("PORT", 8001))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
-
-
