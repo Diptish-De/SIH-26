@@ -1,0 +1,116 @@
+{
+  "benchmark_timestamp": "2026-09-06T04:07:00Z",
+  "evaluation_dataset": "SwarSanket Curated Multilingual Held-Out Test Set",
+  "test_samples_total": 144,
+  "test_samples_class_0_control": 72,
+  "test_samples_class_1_ad": 72,
+  "train_samples_total": 324,
+  "train_samples_class_0_control": 162,
+  "train_samples_class_1_ad": 162,
+  "production_feature_count": 20,
+  "models": {
+    "xgboost_frozen_production": {
+      "model_name": "Frozen Production XGBoost Classifier",
+      "architecture": "Gradient Boosted Decision Trees (200 estimators, max_depth=3)",
+      "artifact_file": "swarsanket_xgboost_final.pkl",
+      "artifact_size_kb": 219.24,
+      "tree_count": 200,
+      "total_nodes": 2426,
+      "metrics": {
+        "accuracy": 0.847222,
+        "accuracy_percent": 84.72,
+        "sensitivity_recall": 0.819444,
+        "sensitivity_percent": 81.94,
+        "specificity": 0.875,
+        "specificity_percent": 87.5,
+        "precision": 0.867647,
+        "precision_percent": 86.76,
+        "f1_score": 0.842857,
+        "f1_score_percent": 84.29,
+        "roc_auc": 0.898148,
+        "roc_auc_percent": 89.81
+      },
+      "confusion_matrix": {
+        "true_negatives": 63,
+        "false_positives": 9,
+        "false_negatives": 13,
+        "true_positives": 59,
+        "total": 144
+      },
+      "asr_subsplit_accuracy": {
+        "aliyun_asr_48": {
+          "accuracy": 0.8958,
+          "sensitivity": 0.9167,
+          "specificity": 0.875,
+          "roc_auc": 0.9167
+        },
+        "tencent_asr_48": {
+          "accuracy": 0.8542,
+          "sensitivity": 0.8333,
+          "specificity": 0.875,
+          "roc_auc": 0.8872
+        },
+        "xunfei_asr_48": {
+          "accuracy": 0.7917,
+          "sensitivity": 0.7083,
+          "specificity": 0.875,
+          "roc_auc": 0.8976
+        }
+      },
+      "computational_benchmarks": {
+        "train_time_ms": 118.49,
+        "batch_inference_144_ms": 2.216,
+        "inference_per_sample_us": 15.4,
+        "single_sample_latency_mean_ms": 1.966,
+        "single_sample_latency_p50_ms": 1.879,
+        "single_sample_latency_p95_ms": 2.6,
+        "single_sample_latency_p99_ms": 3.939
+      },
+      "generalization": {
+        "train_accuracy": 1.0,
+        "test_accuracy": 0.8472,
+        "generalization_delta": 0.1528
+      }
+    },
+    "hybrid_qml_pennylane": {
+      "model_name": "Hybrid Quantum-Classical Neural Network (QNN)",
+      "architecture": "PennyLane Variational Quantum Circuit (VQC) + Classical Linear Layers",
+      "framework": "PennyLane + PyTorch",
+      "qubit_count": 4,
+      "quantum_layers": "AngleEmbedding + StronglyEntanglingLayers / BasicEntangler",
+      "metrics": {
+        "accuracy": 0.770833,
+        "accuracy_percent": 77.08,
+        "sensitivity_recall": 0.694444,
+        "sensitivity_percent": 69.44,
+        "specificity": 0.847222,
+        "specificity_percent": 84.72,
+        "precision": 0.819672,
+        "precision_percent": 81.97,
+        "f1_score": 0.75188,
+        "f1_score_percent": 75.19,
+        "roc_auc": 0.811,
+        "roc_auc_percent": 81.1
+      },
+      "confusion_matrix": {
+        "true_negatives": 61,
+        "false_positives": 11,
+        "false_negatives": 22,
+        "true_positives": 50,
+        "total": 144
+      },
+      "computational_benchmarks": {
+        "train_time_estimated_min": 20.0,
+        "batch_inference_144_estimated_ms": 2500.0,
+        "inference_per_sample_estimated_ms": 17.36,
+        "quantum_advantage_observed": false,
+        "quantum_advantage_note": "Current NISQ/simulated state vector does not outperform classical tree-ensembles on tabular speech vectors; serves as quantum feasibility prototype."
+      },
+      "generalization": {
+        "train_accuracy": 0.825,
+        "test_accuracy": 0.7708,
+        "generalization_delta": 0.0542
+      }
+    }
+  }
+}
